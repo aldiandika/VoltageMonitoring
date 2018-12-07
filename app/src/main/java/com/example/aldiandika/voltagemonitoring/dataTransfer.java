@@ -54,6 +54,8 @@ public class dataTransfer extends AppCompatActivity {
             try {
                 data = new String(bytes, "UTF-8");
                 data.concat("\n");
+
+
                 appendText(txt_receiveSerial,data);
             }catch (UnsupportedEncodingException e){
                 e.printStackTrace();
