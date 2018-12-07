@@ -45,18 +45,22 @@ public class dataTransfer extends AppCompatActivity {
     public String value_I;
     public String value_P;
 
+    public String data = null;
+
 
     //Receive serial data
     UsbSerialInterface.UsbReadCallback callback = new UsbSerialInterface.UsbReadCallback() {
         @Override
         public void onReceivedData(byte[] bytes) {
-            String data = null;
+
             try {
                 data = new String(bytes, "UTF-8");
+
+                parsingSerial(data);
+
                 data.concat("\n");
-
-
                 appendText(txt_receiveSerial,data);
+
             }catch (UnsupportedEncodingException e){
                 e.printStackTrace();
             }
@@ -179,5 +183,45 @@ public class dataTransfer extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void parsingSerial(String input){
+        String[] splitedInput = input.split(" ");
+        int pjgData = splitedInput.length;
+
+        if(pjgData == 6){
+            if((splitedInput[0].replaceAll("[0-9]+","")).equals("a")){
+                // System.out.println(splitedInput[0].replaceAll("[a-z]+",""));
+                value_VSatu = splitedInput[0].replaceAll("[a-z]+","");
+            }
+
+            if((splitedInput[1].replaceAll("[0-9]+","")).equals("b")){
+                // System.out.println(splitedInput[1].replaceAll("[a-z]+",""));
+                value_VDua = splitedInput[1].replaceAll("[a-z]+","");
+            }
+
+            if((splitedInput[2].replaceAll("[0-9]+","")).equals("c")){
+                // System.out.println(splitedInput[2].replaceAll("[a-z]+",""));
+                value_VTiga = splitedInput[2].replaceAll("[a-z]+","");
+            }
+
+            if((splitedInput[3].replaceAll("[0-9]+","")).equals("d")){
+                // System.out.println(splitedInput[3].replaceAll("[a-z]+",""));
+                value_VEmpat = splitedInput[3].replaceAll("[a-z]+","");
+            }
+
+            if((splitedInput[4].replaceAll("[0-9]+","")).equals("e")){
+                // System.out.println(splitedInput[4].replaceAll("[a-z]+",""));
+                value_I = splitedInput[4].replaceAll("[a-z]+","");
+            }
+
+            if((splitedInput[5].replaceAll("[0-9]+","")).equals("f")){
+                // System.out.println(splitedInput[5].replaceAll("[a-z]+",""));
+                value_P = splitedInput[5].replaceAll("[a-z]+","");
+            }
+
+        }
+
+
     }
 }
