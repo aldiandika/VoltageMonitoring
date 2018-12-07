@@ -16,12 +16,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.aldiandika.voltagemonitoring.util.Create;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.support.v4.os.LocaleListCompat.create;
 
 public class dataTransfer extends AppCompatActivity {
 
@@ -34,6 +37,13 @@ public class dataTransfer extends AppCompatActivity {
     UsbDeviceConnection usbConnection;
     UsbManager usbManager;
     UsbSerialDevice serialPort;
+
+    public String value_VSatu;
+    public String value_VDua;
+    public String value_VTiga;
+    public String value_VEmpat;
+    public String value_I;
+    public String value_P;
 
 
     //Receive serial data
@@ -106,6 +116,7 @@ public class dataTransfer extends AppCompatActivity {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         registerReceiver(broadcastReceiver, filter);
+
     }
 
     public void setUiEnabled(boolean bool) {
