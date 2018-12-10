@@ -286,7 +286,9 @@ public class dataTransfer extends AppCompatActivity {
         }
     }
 
+    protected void sendToServer(){
 
+    }
 
     protected void intoVar(){
         runOnUiThread(new Runnable() {
