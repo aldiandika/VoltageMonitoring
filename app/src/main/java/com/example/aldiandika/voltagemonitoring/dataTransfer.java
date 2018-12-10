@@ -286,8 +286,6 @@ public class dataTransfer extends AppCompatActivity {
         }
     }
 
-
-
     protected void intoVar(){
         runOnUiThread(new Runnable() {
             @Override
