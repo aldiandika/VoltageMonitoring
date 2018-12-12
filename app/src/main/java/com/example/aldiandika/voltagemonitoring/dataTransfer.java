@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,17 +17,28 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.aldiandika.voltagemonitoring.server.Server;
 import com.example.aldiandika.voltagemonitoring.util.Create;
+import com.example.aldiandika.voltagemonitoring.util.JSONParser;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.support.v4.os.LocaleListCompat.create;
 
-public class dataTransfer extends AppCompatActivity {
+public class dataTransfer extends AppCompatActivity{
 
     Button btn_start, btn_stop, btn_clear;
     TextView txt_receiveSerial, txt_receiveServer, txt_v1, txt_v2, txt_v3, txt_v4,
@@ -50,6 +62,25 @@ public class dataTransfer extends AppCompatActivity {
 
     public String TAG_SERIAL = "";
 
+    JSONParser jsonParser = new JSONParser();
+    String url_create = Server.serverURL + "/store";
+
+    public static final String TAG_SUCCESS = "success";
+    public static final String TAG_V_SATU = "voltage_satu";
+    public static final String TAG_V_DUA = "voltage_dua";
+    public static final String TAG_V_TIGA = "voltage_tiga";
+    public static final String TAG_V_EMPAT = "voltage_empat";
+    public static final String TAG_I = "arus";
+    public static final String TAG_P = "daya";
+
+    public static int status_kirimDB; //0 = "Gagal database", 1 = "Gagal Koneksi", 2 = "Sukses"
+
+    public static boolean FLAG_DATA_COMPLETE = false;
+
+    private MyTimerTask.StoreData myasyncTask;
+
+    int pjgData;
+    String[] splitedInput;
 
     //Receive serial data
     UsbSerialInterface.UsbReadCallback callback = new UsbSerialInterface.UsbReadCallback() {
@@ -153,6 +184,10 @@ public class dataTransfer extends AppCompatActivity {
             }
         }
 
+        MyTimerTask myTask = new MyTimerTask();
+        Timer myTimer = new Timer();
+
+        myTimer.schedule(myTask,1000, 5000);
     }
 
     public void setUiEnabled(boolean bool) {
@@ -161,31 +196,6 @@ public class dataTransfer extends AppCompatActivity {
     }
 
     public void onClickStart(View view){
-//        HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
-//        if (!usbDevices.isEmpty()) {
-//            boolean keep = true;
-//            for (Map.Entry<String, UsbDevice> entry : usbDevices.entrySet()) {
-//                device = entry.getValue();
-//                int deviceVID = device.getVendorId();
-//                if (deviceVID == 0x1A86)// 0x2341 Arduino Vendor ID
-//                {
-//                    PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-//                    usbManager.requestPermission(device, pi);
-//                    keep = false;
-//
-////                    TAG_SERIAL = "1";
-////                    serialPort.write(TAG_SERIAL.getBytes());
-//                    Toast.makeText(dataTransfer.this,"cek", Toast.LENGTH_LONG).show();
-//                } else {
-//                    usbConnection= null;
-//                    device = null;
-//                }
-//
-//                if (!keep)
-//                    break;
-//            }
-//        }
-
         TAG_SERIAL = "1";
         serialPort.write(TAG_SERIAL.getBytes());
     }
@@ -233,10 +243,16 @@ public class dataTransfer extends AppCompatActivity {
                         ftxtView.setText(ftext);
                         TAG_SERIAL = "1";
                         serialPort.write(TAG_SERIAL.getBytes());
+
+                        FLAG_DATA_COMPLETE = false;
+
+                    }else if(ftext.isEmpty()){
+                        FLAG_DATA_COMPLETE = false;
+
                     }else{
                         ftxtView.setText(ftext);
-                        TAG_SERIAL = "0";
-                        serialPort.write(TAG_SERIAL.getBytes());
+
+
 
                         parsingSerial(ftext);
                     }
@@ -248,8 +264,8 @@ public class dataTransfer extends AppCompatActivity {
     }
 
     private void parsingSerial(String input){
-        String[] splitedInput = input.split(" ");
-        int pjgData = splitedInput.length;
+        splitedInput = input.split(" ");
+        pjgData = splitedInput.length;
 
         txt_lenData.setText(String.valueOf(pjgData));
 
@@ -283,32 +299,157 @@ public class dataTransfer extends AppCompatActivity {
                 value_P = splitedInput[5].replaceAll("[a-z]+","");
                 txt_daya.setText(value_P);
             }
+
+            FLAG_DATA_COMPLETE = true;
+
+            pjgData = 0;
+            splitedInput = null;
+
+            TAG_SERIAL = "0";
+            serialPort.write(TAG_SERIAL.getBytes());
+
+        }else{
+            FLAG_DATA_COMPLETE = false;
         }
     }
 
-    protected void sendToServer(){
+    @Override
+    protected void onPause() {
+        super.onPause();
 
+        unregisterReceiver(broadcastReceiver);
     }
 
-    protected void intoVar(){
-        runOnUiThread(new Runnable() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    class MyTimerTask extends TimerTask{
+
+        final class StoreData extends AsyncTask<String, String, String>{
+
             @Override
-            public void run() {
-                try {
-                    txt_v1.setText(value_VSatu);
-                    txt_v2.setText(value_VDua);
-                    txt_v3.setText(value_VTiga);
-                    txt_v4.setText(value_VEmpat);
-                    txt_I.setText(value_I);
-                    txt_daya.setText(value_P);
+            protected String doInBackground(String... strings) {
+                List<NameValuePair> params = new ArrayList<>();
 
-                    TAG_SERIAL = "1";
-                    serialPort.write(TAG_SERIAL.getBytes());
+                //For debug only
+//                value_VSatu = "1";
+//                value_VDua = "2";
+//                value_VTiga = "3";
+//                value_VEmpat = "4";
+//                value_I = "5";
+//                value_P = "6";
 
-                }catch(NullPointerException e){
-                    e.printStackTrace();
+                if(!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
+                        && !value_VEmpat.isEmpty() && !value_I.isEmpty() && !value_P.isEmpty()){
+
+                    params.add(new BasicNameValuePair(TAG_V_SATU,value_VSatu));
+                    params.add(new BasicNameValuePair(TAG_V_DUA,value_VDua));
+                    params.add(new BasicNameValuePair(TAG_V_TIGA,value_VTiga));
+                    params.add(new BasicNameValuePair(TAG_V_EMPAT,value_VEmpat));
+                    params.add(new BasicNameValuePair(TAG_I,value_I));
+                    params.add(new BasicNameValuePair(TAG_P,value_P));
+
+                    JSONObject json = jsonParser.makeHttpRequest(url_create, "GET", params);
+
+                    try{
+                        int success = json.getInt(TAG_SUCCESS);
+
+                        if(success!=1){
+                            return "gagal database";
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                        return "gagal koneksi";
+                    }
+
+                    return "sukses";
                 }
+
+                return "gagal database";
             }
-        });
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                if(s.equalsIgnoreCase("gagal database")){
+                    status_kirimDB = 0;
+                }else if(s.equalsIgnoreCase("gagal koneksi")){
+                    status_kirimDB = 1;
+                }else if(s.equalsIgnoreCase("sukses")){
+                    status_kirimDB = 2;
+                    FLAG_DATA_COMPLETE = false;
+                }
+
+                Toast.makeText(dataTransfer.this, s, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void run() {
+            if(FLAG_DATA_COMPLETE){
+                myasyncTask =  new StoreData();
+                myasyncTask.execute();
+
+            }else if(!FLAG_DATA_COMPLETE){
+
+            }
+
+        }
     }
+
+
+//    class StoreData extends AsyncTask<String, String, String>{
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//            List<NameValuePair> params = new ArrayList<>();
+//
+//            //For debug only
+//            value_VSatu = "1";
+//            value_VDua = "2";
+//            value_VTiga = "3";
+//            value_VEmpat = "4";
+//            value_I = "5";
+//            value_P = "6";
+//
+//            params.add(new BasicNameValuePair(TAG_V_SATU,value_VSatu));
+//            params.add(new BasicNameValuePair(TAG_V_DUA,value_VDua));
+//            params.add(new BasicNameValuePair(TAG_V_TIGA,value_VTiga));
+//            params.add(new BasicNameValuePair(TAG_V_EMPAT,value_VEmpat));
+//            params.add(new BasicNameValuePair(TAG_I,value_I));
+//            params.add(new BasicNameValuePair(TAG_P,value_P));
+//
+//            JSONObject json = jsonParser.makeHttpRequest(url_create, "GET", params);
+//
+//            try{
+//                int success = json.getInt(TAG_SUCCESS);
+//
+//                if(success!=1){
+//                    return "gagal database";
+//                }
+//            }catch (JSONException e){
+//                e.printStackTrace();
+//                return "gagal koneksi";
+//            }
+//
+//            return "sukses";
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String s) {
+//            super.onPostExecute(s);
+//            if(s.equalsIgnoreCase("gagal database")){
+//                status_kirimDB = 0;
+//            }else if(s.equalsIgnoreCase("gagal koneksi")){
+//                status_kirimDB = 1;
+//            }else if(s.equalsIgnoreCase("sukses")){
+//                status_kirimDB = 2;
+//            }
+//
+//            Toast.makeText(dataTransfer.this, s, Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
 }

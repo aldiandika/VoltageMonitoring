@@ -34,7 +34,12 @@ public class Create extends AsyncTask<String, String, String>{
     public static String valueI = "";
     public static String valueP = "";
 
-    public int status_kirimDB; //0 = "Gagal database", 1 = "Gagal Koneksi", 2 = "Sukses"
+    public static int status_kirimDB; //0 = "Gagal database", 1 = "Gagal Koneksi", 2 = "Sukses"
+
+    public Create() {
+        switchVar();
+
+    }
 
     protected void switchVar(){
         dataTransfer dataTransfer = new dataTransfer();
@@ -48,7 +53,7 @@ public class Create extends AsyncTask<String, String, String>{
 
     @Override
     protected String doInBackground(String... strings) {
-        switchVar();
+
         List<NameValuePair> params = new ArrayList<>();
 
         params.add(new BasicNameValuePair(TAG_V_SATU,valueVsatu));
@@ -63,7 +68,7 @@ public class Create extends AsyncTask<String, String, String>{
         try{
             int success = json.getInt(TAG_SUCCESS);
 
-            if(success==0){
+            if(success!=1){
                 return "gagal database";
             }
         }catch (JSONException e){
@@ -85,6 +90,7 @@ public class Create extends AsyncTask<String, String, String>{
         }else if(s.equalsIgnoreCase("sukses")){
             status_kirimDB = 2;
         }
+
 
     }
 }
