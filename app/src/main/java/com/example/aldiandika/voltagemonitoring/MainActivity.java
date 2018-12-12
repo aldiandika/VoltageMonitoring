@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         btn_toSerial = (Button)findViewById(R.id.btn_toSerial);
 
         WindowManager.LayoutParams lp = getWindow().getAttributes();
-        lp.screenBrightness = 0; // 0f - no backlight ... 1f - full backlight
+        lp.screenBrightness = 0; //
         getWindow().setAttributes(lp);
     }
 
