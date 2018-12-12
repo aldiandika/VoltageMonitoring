@@ -196,7 +196,7 @@ public class dataTransfer extends AppCompatActivity{
     }
 
     public void onClickStart(View view){
-        TAG_SERIAL = "1";
+        TAG_SERIAL = "$10#";
         serialPort.write(TAG_SERIAL.getBytes());
     }
 
@@ -241,9 +241,9 @@ public class dataTransfer extends AppCompatActivity{
                 try{
                     if(ftext.contains("on")){
                         ftxtView.setText(ftext);
-                        TAG_SERIAL = "1";
+//                        TAG_SERIAL = "$10#";
+                        TAG_SERIAL = "1"; //for debug
                         serialPort.write(TAG_SERIAL.getBytes());
-
                         FLAG_DATA_COMPLETE = false;
 
                     }else if(ftext.isEmpty()){
@@ -251,8 +251,9 @@ public class dataTransfer extends AppCompatActivity{
 
                     }else{
                         ftxtView.setText(ftext);
-
-
+                        //            TAG_SERIAL = "$00#";
+                        TAG_SERIAL = "0"; //for debug
+                        serialPort.write(TAG_SERIAL.getBytes());
 
                         parsingSerial(ftext);
                     }
@@ -304,9 +305,6 @@ public class dataTransfer extends AppCompatActivity{
 
             pjgData = 0;
             splitedInput = null;
-
-            TAG_SERIAL = "0";
-            serialPort.write(TAG_SERIAL.getBytes());
 
         }else{
             FLAG_DATA_COMPLETE = false;
@@ -380,6 +378,8 @@ public class dataTransfer extends AppCompatActivity{
                 }else if(s.equalsIgnoreCase("sukses")){
                     status_kirimDB = 2;
                     FLAG_DATA_COMPLETE = false;
+
+
                 }
 
                 Toast.makeText(dataTransfer.this, s, Toast.LENGTH_SHORT).show();
@@ -391,9 +391,10 @@ public class dataTransfer extends AppCompatActivity{
             if(FLAG_DATA_COMPLETE){
                 myasyncTask =  new StoreData();
                 myasyncTask.execute();
-
-            }else if(!FLAG_DATA_COMPLETE){
-
+            }else{
+//                TAG_SERIAL = "$11#";
+                TAG_SERIAL = "1"; //for debug
+                serialPort.write(TAG_SERIAL.getBytes());
             }
 
         }
