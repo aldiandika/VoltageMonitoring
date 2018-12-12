@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -33,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
         btn_toSerial = (Button)findViewById(R.id.btn_toSerial);
 
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.screenBrightness = 0; // 0f - no backlight ... 1f - full backlight
+        getWindow().setAttributes(lp);
     }
 
     public void toDataTransfer(View view){

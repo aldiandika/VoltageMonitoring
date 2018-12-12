@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.aldiandika.voltagemonitoring.server.Server;
-import com.example.aldiandika.voltagemonitoring.util.Create;
 import com.example.aldiandika.voltagemonitoring.util.JSONParser;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
@@ -35,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static android.support.v4.os.LocaleListCompat.create;
 
 public class dataTransfer extends AppCompatActivity{
 
@@ -378,8 +375,6 @@ public class dataTransfer extends AppCompatActivity{
                 }else if(s.equalsIgnoreCase("sukses")){
                     status_kirimDB = 2;
                     FLAG_DATA_COMPLETE = false;
-
-
                 }
 
                 Toast.makeText(dataTransfer.this, s, Toast.LENGTH_SHORT).show();
