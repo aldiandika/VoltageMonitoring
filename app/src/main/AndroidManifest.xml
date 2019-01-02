@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.hardware.usb.host" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
-        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <uses-feature android:name="android.hardware.usb.host" />
 
     <application
@@ -17,16 +17,30 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+
+             android:clearTaskOnLaunch="true"
+             android:stateNotNeeded="true"><!--Clear for debug-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.HOME"/><!--Clear for debug-->
+                 <category android:name="android.intent.category.DEFAULT"/><!--Clear for debug-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            </intent-filter>
         </activity>
-
-        <activity android:name=".dataTransfer">
+        <activity
+            android:name=".dataTransfer"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
@@ -34,6 +48,14 @@
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
+        </activity>
+        <activity android:name=".ShowData"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".dataTransfer" />
         </activity>
     </application>
 

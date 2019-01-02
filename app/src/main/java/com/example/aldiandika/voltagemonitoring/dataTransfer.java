@@ -9,6 +9,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.aldiandika.voltagemonitoring.server.Server;
+import com.example.aldiandika.voltagemonitoring.util.DatabaseHelper;
 import com.example.aldiandika.voltagemonitoring.util.JSONParser;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
@@ -28,7 +30,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +42,9 @@ import java.util.TimerTask;
 
 public class dataTransfer extends AppCompatActivity{
 
-    Button btn_start, btn_stop, btn_clear;
+    Button btn_start, btn_stop, btn_clear, btn_database;
     TextView txt_receiveSerial, txt_receiveServer, txt_v1, txt_v2, txt_v3, txt_v4,
-             txt_I, txt_daya, txt_lenData;
+             txt_I, txt_daya, txt_lenData, txt_battery;
 
     //Serial variabel initialization
     public final String ACTION_USB_PERMISSION = "com.example.aldiandika.voltagemonitoring.USB_PERMISSION";
@@ -60,7 +65,7 @@ public class dataTransfer extends AppCompatActivity{
     public String TAG_SERIAL = "";
 
     JSONParser jsonParser = new JSONParser();
-    String url_create = Server.serverURL + "/store";
+    String url_create = Server.serverURL + "store";
 
     public static final String TAG_SUCCESS = "success";
     public static final String TAG_V_SATU = "voltage_satu";
@@ -75,9 +80,21 @@ public class dataTransfer extends AppCompatActivity{
     public static boolean FLAG_DATA_COMPLETE = false;
 
     private MyTimerTask.StoreData myasyncTask;
+    private MyTimerTask.StoreSQlite sqliteAsyncTask;
 
-    int pjgData;
+    int pjgData, deviceStatus;
+
+    String currentBatteryStatus="";
+    float percentage;
     String[] splitedInput;
+
+    //SQlite variables
+    Date tgl;
+    String formattedDate;
+//    boolean inserted;
+    DatabaseHelper dbSqlite;
+
+    int count;//for debug
 
     //Receive serial data
     UsbSerialInterface.UsbReadCallback callback = new UsbSerialInterface.UsbReadCallback() {
@@ -107,7 +124,7 @@ public class dataTransfer extends AppCompatActivity{
                     serialPort = UsbSerialDevice.createUsbSerialDevice(device, usbConnection);
                     if(serialPort != null){
                         if(serialPort.open()){
-
+                            Toast.makeText(dataTransfer.this, "Serial open", Toast.LENGTH_SHORT).show();
 //                            setUiEnabled(true);
                             serialPort.setBaudRate(9600);
                             serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
@@ -131,6 +148,49 @@ public class dataTransfer extends AppCompatActivity{
                 onClickStop(btn_stop);
             }
 
+
+        }
+    };
+
+    //Battery information
+    private BroadcastReceiver mBroadccastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            deviceStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS,-1);
+            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            int batteryLevel=(int)(((float)level / (float)scale) * 100.0f);
+
+            if(deviceStatus == BatteryManager.BATTERY_STATUS_CHARGING){
+
+                txt_battery.setText(currentBatteryStatus+" Charging at "+batteryLevel+" %");
+
+            }
+
+            if(deviceStatus == BatteryManager.BATTERY_STATUS_DISCHARGING){
+
+                txt_battery.setText(currentBatteryStatus+" Discharging at "+batteryLevel+" %");
+
+            }
+
+            if (deviceStatus == BatteryManager.BATTERY_STATUS_FULL){
+
+                txt_battery.setText(currentBatteryStatus+" Battery Full at "+batteryLevel+" %");
+
+            }
+
+            if(deviceStatus == BatteryManager.BATTERY_STATUS_UNKNOWN){
+
+                txt_battery.setText(currentBatteryStatus+" Unknown at "+batteryLevel+" %");
+            }
+
+
+            if (deviceStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING){
+
+                txt_battery.setText(currentBatteryStatus+" = Not Charging at "+batteryLevel+" %");
+
+            }
         }
     };
 
@@ -141,6 +201,7 @@ public class dataTransfer extends AppCompatActivity{
 
         btn_start = (Button)findViewById(R.id.btn_start);
         btn_stop = (Button)findViewById(R.id.btn_stop);
+        btn_database = (Button)findViewById(R.id.btn_database);
         txt_receiveSerial = (TextView)findViewById(R.id.txt_receiveSerial);
         txt_v1 = (TextView)findViewById(R.id.txt_v1);
         txt_v2 = (TextView)findViewById(R.id.txt_v2);
@@ -149,6 +210,7 @@ public class dataTransfer extends AppCompatActivity{
         txt_I = (TextView)findViewById(R.id.txt_I);
         txt_daya = (TextView)findViewById(R.id.txt_daya);
         txt_lenData = (TextView)findViewById(R.id.txt_lenData);
+        txt_battery = (TextView)findViewById(R.id.txt_battery);
 
 
         setUiEnabled(false);
@@ -160,6 +222,17 @@ public class dataTransfer extends AppCompatActivity{
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         registerReceiver(broadcastReceiver, filter);
 
+        IntentFilter mFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(mBroadccastReceiver,mFilter);
+
+        tgl = Calendar.getInstance().getTime();
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+        formattedDate = df.format(tgl);
+
+        Toast.makeText(dataTransfer.this, formattedDate, Toast.LENGTH_SHORT).show();
+
+        /*For debug
         HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
         if (!usbDevices.isEmpty()) {
             boolean keep = true;
@@ -185,6 +258,12 @@ public class dataTransfer extends AppCompatActivity{
         Timer myTimer = new Timer();
 
         myTimer.schedule(myTask,1000, 5000);
+        */
+    }
+
+    public void toDatabase(View view){
+        Intent intent = new Intent(this,ShowData.class);
+        startActivity(intent);
     }
 
     public void setUiEnabled(boolean bool) {
@@ -313,11 +392,45 @@ public class dataTransfer extends AppCompatActivity{
         super.onPause();
 
         unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(mBroadccastReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(broadcastReceiver, filter);
+
+        IntentFilter mFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(mBroadccastReceiver,mFilter);
+    }
+
+    private void hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
     }
 
     class MyTimerTask extends TimerTask{
@@ -349,12 +462,16 @@ public class dataTransfer extends AppCompatActivity{
                     JSONObject json = jsonParser.makeHttpRequest(url_create, "GET", params);
 
                     try{
-                        int success = json.getInt(TAG_SUCCESS);
+
+                        int success = json.getInt(TAG_SUCCESS);;
 
                         if(success!=1){
                             return "gagal database";
                         }
                     }catch (JSONException e){
+                        e.printStackTrace();
+                        return "gagal koneksi";
+                    }catch (NullPointerException e){
                         e.printStackTrace();
                         return "gagal koneksi";
                     }
@@ -381,71 +498,83 @@ public class dataTransfer extends AppCompatActivity{
             }
         }
 
+        final class StoreSQlite extends AsyncTask<String, String, String>{
+
+            Date dateLocal;
+            String formattedDateLocal;
+            DatabaseHelper dbSqlite;
+
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+
+                dbSqlite = new DatabaseHelper(dataTransfer.this);
+                dateLocal = Calendar.getInstance().getTime();
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+                formattedDateLocal = formatter.format(dateLocal);
+            }
+
+            @Override
+            protected String doInBackground(String... strings) {
+
+                //For debug only
+                value_VSatu = String.valueOf(count);
+                value_VDua = "2";
+                value_VTiga = "3";
+                value_VEmpat = "4";
+                value_I = "5";
+                value_P = "6";
+
+                if(!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
+                        && !value_VEmpat.isEmpty() && !value_I.isEmpty() && !value_P.isEmpty() &&
+                        !formattedDateLocal.isEmpty()) {
+
+                     boolean inserted = dbSqlite.insertData(value_VSatu,value_VDua,value_VTiga,value_VEmpat,
+                            value_I,value_P,formattedDateLocal);
+
+                    //For debug
+//                    boolean inserted = dbSqlite.insertData("1",
+//                            "1",
+//                            "1",
+//                            "1",
+//                            "1","1",
+//                            "1");
+
+                    if(!inserted){
+                        return "SQlite Gagal";
+                    }else{
+                        return "SQlite Sukses";
+                    }
+                }
+                return "SQlite Sukses";
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                Toast.makeText(dataTransfer.this,s,Toast.LENGTH_LONG).show();
+            }
+        }
         @Override
         public void run() {
+            count++;
+            sqliteAsyncTask = new StoreSQlite();
+            sqliteAsyncTask.execute();
+
+            /*for bug
             if(FLAG_DATA_COMPLETE){
                 myasyncTask =  new StoreData();
                 myasyncTask.execute();
+
             }else{
 //                TAG_SERIAL = "$11#";
                 TAG_SERIAL = "1"; //for debug
                 serialPort.write(TAG_SERIAL.getBytes());
             }
-
+            */
         }
     }
-
-
-//    class StoreData extends AsyncTask<String, String, String>{
-//
-//        @Override
-//        protected String doInBackground(String... strings) {
-//            List<NameValuePair> params = new ArrayList<>();
-//
-//            //For debug only
-//            value_VSatu = "1";
-//            value_VDua = "2";
-//            value_VTiga = "3";
-//            value_VEmpat = "4";
-//            value_I = "5";
-//            value_P = "6";
-//
-//            params.add(new BasicNameValuePair(TAG_V_SATU,value_VSatu));
-//            params.add(new BasicNameValuePair(TAG_V_DUA,value_VDua));
-//            params.add(new BasicNameValuePair(TAG_V_TIGA,value_VTiga));
-//            params.add(new BasicNameValuePair(TAG_V_EMPAT,value_VEmpat));
-//            params.add(new BasicNameValuePair(TAG_I,value_I));
-//            params.add(new BasicNameValuePair(TAG_P,value_P));
-//
-//            JSONObject json = jsonParser.makeHttpRequest(url_create, "GET", params);
-//
-//            try{
-//                int success = json.getInt(TAG_SUCCESS);
-//
-//                if(success!=1){
-//                    return "gagal database";
-//                }
-//            }catch (JSONException e){
-//                e.printStackTrace();
-//                return "gagal koneksi";
-//            }
-//
-//            return "sukses";
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String s) {
-//            super.onPostExecute(s);
-//            if(s.equalsIgnoreCase("gagal database")){
-//                status_kirimDB = 0;
-//            }else if(s.equalsIgnoreCase("gagal koneksi")){
-//                status_kirimDB = 1;
-//            }else if(s.equalsIgnoreCase("sukses")){
-//                status_kirimDB = 2;
-//            }
-//
-//            Toast.makeText(dataTransfer.this, s, Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
 }

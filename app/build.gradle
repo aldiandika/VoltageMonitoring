@@ -5,7 +5,7 @@ android {
     useLibrary "org.apache.http.legacy"
     defaultConfig {
         applicationId "com.example.aldiandika.voltagemonitoring"
-        minSdkVersion 16
+        minSdkVersion 14 //16 default
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"

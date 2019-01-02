@@ -5,12 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center"
     tools:context=".MainActivity">
+
 
     <Button
         android:id="@+id/btn_toSerial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Serial"
+        android:text="Start"
         android:onClick="toDataTransfer"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VOLTAGE MOITORING"/>
+
+    <Button
+        android:id="@+id/btn_showData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Data"
+        android:visibility="gone"
+        android:onClick="toShowData"/>
 </LinearLayout>

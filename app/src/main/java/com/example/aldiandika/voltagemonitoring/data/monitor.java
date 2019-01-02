@@ -9,6 +9,7 @@ public class monitor {
     private String v_empat;
     private String arus;
     private String daya;
+    private String tgl;
 
     public String getId() {
         return id;
@@ -64,5 +65,13 @@ public class monitor {
 
     public void setV_empat(String v_empat) {
         this.v_empat = v_empat;
+    }
+
+    public String getTgl(){
+        return this.tgl;
+    }
+
+    public void setTgl(String tgl){
+        this.tgl = tgl;
     }
 }
