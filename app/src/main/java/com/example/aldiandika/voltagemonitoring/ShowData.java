@@ -94,6 +94,7 @@ public class ShowData extends AppCompatActivity {
         currentDate = txt_setTgl.getText().toString();
         mydb = new DatabaseHelper(this);
         Cursor res = mydb.getDataAt(currentDate);
+//        Cursor res = mydb.getAllData();
         if(res.getCount() == 0){
             Toast.makeText(this,"No Data",Toast.LENGTH_LONG).show();
             return;

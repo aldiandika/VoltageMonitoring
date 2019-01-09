@@ -227,12 +227,12 @@ public class dataTransfer extends AppCompatActivity{
 
         tgl = Calendar.getInstance().getTime();
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy/M/d");
         formattedDate = df.format(tgl);
 
         Toast.makeText(dataTransfer.this, formattedDate, Toast.LENGTH_SHORT).show();
 
-        /*For debug
+        //For debug
         HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
         if (!usbDevices.isEmpty()) {
             boolean keep = true;
@@ -258,7 +258,7 @@ public class dataTransfer extends AppCompatActivity{
         Timer myTimer = new Timer();
 
         myTimer.schedule(myTask,1000, 5000);
-        */
+
     }
 
     public void toDatabase(View view){
@@ -512,7 +512,7 @@ public class dataTransfer extends AppCompatActivity{
                 dbSqlite = new DatabaseHelper(dataTransfer.this);
                 dateLocal = Calendar.getInstance().getTime();
 
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy/M/d");
                 formattedDateLocal = formatter.format(dateLocal);
             }
 
@@ -559,21 +559,24 @@ public class dataTransfer extends AppCompatActivity{
         }
         @Override
         public void run() {
-            count++;
-            sqliteAsyncTask = new StoreSQlite();
-            sqliteAsyncTask.execute();
 
-            /*for bug
+
+            //for bug
             if(FLAG_DATA_COMPLETE){
                 myasyncTask =  new StoreData();
                 myasyncTask.execute();
+
+//                count++;
+//            sqliteAsyncTask = new StoreSQlite();
+//            sqliteAsyncTask.execute();
 
             }else{
 //                TAG_SERIAL = "$11#";
                 TAG_SERIAL = "1"; //for debug
                 serialPort.write(TAG_SERIAL.getBytes());
             }
-            */
+
+
         }
     }
 
