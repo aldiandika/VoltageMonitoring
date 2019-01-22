@@ -63,6 +63,7 @@ public class dataTransfer extends AppCompatActivity{
     public String data = null;
 
     public String TAG_SERIAL = "";
+    int moveSerial;
 
     JSONParser jsonParser = new JSONParser();
     String url_create = Server.serverURL + "store";
@@ -126,7 +127,7 @@ public class dataTransfer extends AppCompatActivity{
                         if(serialPort.open()){
                             Toast.makeText(dataTransfer.this, "Serial open", Toast.LENGTH_SHORT).show();
 //                            setUiEnabled(true);
-                            serialPort.setBaudRate(9600);
+                            serialPort.setBaudRate(38400);
                             serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
                             serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
                             serialPort.setParity(UsbSerialInterface.PARITY_NONE);
@@ -254,6 +255,7 @@ public class dataTransfer extends AppCompatActivity{
             }
         }
 
+
         MyTimerTask myTask = new MyTimerTask();
         Timer myTimer = new Timer();
 
@@ -315,10 +317,20 @@ public class dataTransfer extends AppCompatActivity{
             @Override
             public void run() {
                 try{
-                    if(ftext.contains("on")){
+//                    if(ftext.contains("on")){
+//                        ftxtView.setText(ftext);
+//                        TAG_SERIAL = "$1#0";
+////                        TAG_SERIAL = "1"; //for debug
+//                        serialPort.write(TAG_SERIAL.getBytes());
+////                        FLAG_DATA_COMPLETE = false;
+//
+//                    }
+//                    ftxtView.setText(ftext);
+                    /*
+                    if(ftext.contains("on") || !FLAG_DATA_COMPLETE){
                         ftxtView.setText(ftext);
-//                        TAG_SERIAL = "$10#";
-                        TAG_SERIAL = "1"; //for debug
+                        TAG_SERIAL = "$1#0";
+//                        TAG_SERIAL = "1"; //for debug
                         serialPort.write(TAG_SERIAL.getBytes());
                         FLAG_DATA_COMPLETE = false;
 
@@ -327,13 +339,28 @@ public class dataTransfer extends AppCompatActivity{
 
                     }else{
                         ftxtView.setText(ftext);
-                        //            TAG_SERIAL = "$00#";
-                        TAG_SERIAL = "0"; //for debug
-                        serialPort.write(TAG_SERIAL.getBytes());
-
                         parsingSerial(ftext);
+
+                        if(FLAG_DATA_COMPLETE == false){
+                            TAG_SERIAL = "$0#0";
+    //                        TAG_SERIAL = "0"; //for debug
+                            serialPort.write(TAG_SERIAL.getBytes());
+                        }else{
+                            TAG_SERIAL = "$1#0";
+                            //                        TAG_SERIAL = "0"; //for debug
+                            serialPort.write(TAG_SERIAL.getBytes());
+                        }
+
+
                     }
-                }catch (NullPointerException e){
+*/
+
+                    parsingSerial(ftext);
+                    ftxtView.setText(ftext);
+//                    txt_daya.setText(String.valueOf(moveSerial));
+
+                }
+                catch (NullPointerException e){
                     e.printStackTrace();
                 }
             }
@@ -346,6 +373,7 @@ public class dataTransfer extends AppCompatActivity{
 
         txt_lenData.setText(String.valueOf(pjgData));
 
+//        Toast.makeText(dataTransfer.this,""+pjgData,Toast.LENGTH_SHORT).show();
         if(pjgData == 6){
             if((splitedInput[0].replaceAll("[0-9]+","")).equalsIgnoreCase("a")){
                 value_VSatu = splitedInput[0].replaceAll("[a-z]+","");
@@ -362,17 +390,17 @@ public class dataTransfer extends AppCompatActivity{
                 txt_v3.setText(value_VTiga);
             }
 
-            if((splitedInput[3].replaceAll("[0-9]+","")).equalsIgnoreCase("x")){
+            if((splitedInput[3].replaceAll("[0-9]+","")).equalsIgnoreCase("d")){
                 value_VEmpat = splitedInput[3].replaceAll("[a-z]+","");
                 txt_v4.setText(value_VEmpat);
             }
 
-            if((splitedInput[4].replaceAll("[0-9]+","")).equalsIgnoreCase("y")){
+            if((splitedInput[4].replaceAll("[0-9]+","")).equalsIgnoreCase("e")){
                 value_I = splitedInput[4].replaceAll("[a-z]+","");
                 txt_I.setText(value_I);
             }
 
-            if((splitedInput[5].replaceAll("[0-9]+","")).equalsIgnoreCase("z")){
+            if((splitedInput[5].replaceAll("[0-9]+","")).equalsIgnoreCase("f")){
                 value_P = splitedInput[5].replaceAll("[a-z]+","");
                 txt_daya.setText(value_P);
             }
@@ -381,6 +409,7 @@ public class dataTransfer extends AppCompatActivity{
 
             pjgData = 0;
             splitedInput = null;
+
 
         }else{
             FLAG_DATA_COMPLETE = false;
@@ -520,12 +549,12 @@ public class dataTransfer extends AppCompatActivity{
             protected String doInBackground(String... strings) {
 
                 //For debug only
-                value_VSatu = String.valueOf(count);
-                value_VDua = "2";
-                value_VTiga = "3";
-                value_VEmpat = "4";
-                value_I = "5";
-                value_P = "6";
+//                value_VSatu = String.valueOf(count);
+//                value_VDua = "2";
+//                value_VTiga = "3";
+//                value_VEmpat = "4";
+//                value_I = "5";
+//                value_P = "6";
 
                 if(!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
                         && !value_VEmpat.isEmpty() && !value_I.isEmpty() && !value_P.isEmpty() &&
@@ -554,7 +583,7 @@ public class dataTransfer extends AppCompatActivity{
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
-                Toast.makeText(dataTransfer.this,s,Toast.LENGTH_LONG).show();
+//                Toast.makeText(dataTransfer.this,s,Toast.LENGTH_LONG).show();
             }
         }
         @Override
@@ -567,13 +596,19 @@ public class dataTransfer extends AppCompatActivity{
                 myasyncTask.execute();
 
 //                count++;
-//            sqliteAsyncTask = new StoreSQlite();
-//            sqliteAsyncTask.execute();
+                sqliteAsyncTask = new StoreSQlite();
+                sqliteAsyncTask.execute();
+
+                TAG_SERIAL = "$1#";
+//                //                TAG_SERIAL = "1"; //for debug
+                serialPort.write(TAG_SERIAL.getBytes());
 
             }else{
-//                TAG_SERIAL = "$11#";
-                TAG_SERIAL = "1"; //for debug
+//                moveSerial = 3;
+                TAG_SERIAL = "$1#";
+//                //                TAG_SERIAL = "1"; //for debug
                 serialPort.write(TAG_SERIAL.getBytes());
+//                Toast.makeText(dataTransfer.this,"minta data",Toast.LENGTH_SHORT).show();
             }
 
 

@@ -18,24 +18,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
-
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
 
-             <!--android:clearTaskOnLaunch="true"-->
-             <!--android:stateNotNeeded="true">&lt;!&ndash;Clear for debug&ndash;&gt;-->
+            <!-- android:clearTaskOnLaunch="true" -->
+            <!-- android:stateNotNeeded="true">&lt;!&ndash;Clear for debug&ndash;&gt; -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                 <!--<category android:name="android.intent.category.HOME"/>&lt;!&ndash;Clear for debug&ndash;&gt;-->
-                 <!--<category android:name="android.intent.category.DEFAULT"/>&lt;!&ndash;Clear for debug&ndash;&gt;-->
-                <!--&lt;!&ndash;<category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
-            <!--</intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.HOME"/>&lt;!&ndash;Clear for debug&ndash;&gt; -->
+            <!-- <category android:name="android.intent.category.DEFAULT"/>&lt;!&ndash;Clear for debug&ndash;&gt; -->
+            <!-- &lt;!&ndash;<category android:name="android.intent.category.LAUNCHER" />&ndash;&gt; -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".dataTransfer"
@@ -49,14 +49,15 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-        <activity android:name=".ShowData"
+        <activity
+            android:name=".ShowData"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dataTransfer" />
         </activity>
+        <activity android:name=".Settings"></activity>
     </application>
 
 </manifest>
