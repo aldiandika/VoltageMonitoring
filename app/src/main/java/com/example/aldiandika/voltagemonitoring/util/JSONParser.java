@@ -28,9 +28,9 @@ import java.util.List;
 
 public class JSONParser {
 
-    static InputStream is = null;
-    static JSONObject jOBj = null;
-    static String json = "";
+     InputStream is = null;
+     JSONObject jOBj = null;
+     String json = "";
 
     int timeout = 1000;
 

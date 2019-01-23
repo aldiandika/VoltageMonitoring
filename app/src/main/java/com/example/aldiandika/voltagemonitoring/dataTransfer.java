@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -15,6 +16,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +46,8 @@ import java.util.TimerTask;
 public class dataTransfer extends AppCompatActivity{
 
     Button btn_start, btn_stop, btn_clear, btn_database;
+    ImageButton ibtn_setting;
+    ImageView img_konSukses, img_konGagal;
     TextView txt_receiveSerial, txt_receiveServer, txt_v1, txt_v2, txt_v3, txt_v4,
              txt_I, txt_daya, txt_lenData, txt_battery;
 
@@ -59,26 +64,33 @@ public class dataTransfer extends AppCompatActivity{
     public String value_VEmpat;
     public String value_I;
     public String value_P;
-
+    public String status_SerialMikro;
     public String data = null;
 
     public String TAG_SERIAL = "";
     int moveSerial;
 
-    JSONParser jsonParser = new JSONParser();
+//    JSONParser jsonParser = new JSONParser();
+//    JSONObject json;
     String url_create = Server.serverURL + "store";
 
+    int success;
+    String cekJson;
+
     public static final String TAG_SUCCESS = "success";
-    public static final String TAG_V_SATU = "voltage_satu";
-    public static final String TAG_V_DUA = "voltage_dua";
-    public static final String TAG_V_TIGA = "voltage_tiga";
-    public static final String TAG_V_EMPAT = "voltage_empat";
-    public static final String TAG_I = "arus";
-    public static final String TAG_P = "daya";
+    public static final String TAG_V_SATU = "voltage_satu"; //Vr
+    public static final String TAG_V_DUA = "voltage_dua"; //Vs
+    public static final String TAG_V_TIGA = "voltage_tiga"; //Vt
+    public static final String TAG_V_EMPAT = "voltage_empat"; //arus 1
+    public static final String TAG_I = "arus"; //arus 2
+    public static final String TAG_P = "daya"; //daya
+
+    float f_Vr, f_Vs, f_Vt, f_I1, f_I2, f_daya;
 
     public static int status_kirimDB; //0 = "Gagal database", 1 = "Gagal Koneksi", 2 = "Sukses"
 
     public static boolean FLAG_DATA_COMPLETE = false;
+    public static boolean FLAG_ARUS_1 = true;
 
     private MyTimerTask.StoreData myasyncTask;
     private MyTimerTask.StoreSQlite sqliteAsyncTask;
@@ -104,7 +116,6 @@ public class dataTransfer extends AppCompatActivity{
 
             try {
                 data = new String(bytes, "UTF-8");
-
 //                data.concat("\n"); // for debugging purpose only
                 appendText2(txt_receiveSerial,data);
 
@@ -163,35 +174,36 @@ public class dataTransfer extends AppCompatActivity{
             int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             int batteryLevel=(int)(((float)level / (float)scale) * 100.0f);
 
-            if(deviceStatus == BatteryManager.BATTERY_STATUS_CHARGING){
-
-                txt_battery.setText(currentBatteryStatus+" Charging at "+batteryLevel+" %");
-
-            }
-
-            if(deviceStatus == BatteryManager.BATTERY_STATUS_DISCHARGING){
-
-                txt_battery.setText(currentBatteryStatus+" Discharging at "+batteryLevel+" %");
-
-            }
-
-            if (deviceStatus == BatteryManager.BATTERY_STATUS_FULL){
-
-                txt_battery.setText(currentBatteryStatus+" Battery Full at "+batteryLevel+" %");
-
-            }
-
-            if(deviceStatus == BatteryManager.BATTERY_STATUS_UNKNOWN){
-
-                txt_battery.setText(currentBatteryStatus+" Unknown at "+batteryLevel+" %");
-            }
-
-
-            if (deviceStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING){
-
-                txt_battery.setText(currentBatteryStatus+" = Not Charging at "+batteryLevel+" %");
-
-            }
+            txt_battery.setText("" +batteryLevel+ " %");
+//            if(deviceStatus == BatteryManager.BATTERY_STATUS_CHARGING){
+//
+//                txt_battery.setText(currentBatteryStatus+" Charging at "+batteryLevel+" %");
+//
+//            }
+//
+//            if(deviceStatus == BatteryManager.BATTERY_STATUS_DISCHARGING){
+//
+//                txt_battery.setText(currentBatteryStatus+" Discharging at "+batteryLevel+" %");
+//
+//            }
+//
+//            if (deviceStatus == BatteryManager.BATTERY_STATUS_FULL){
+//
+//                txt_battery.setText(currentBatteryStatus+" Battery Full at "+batteryLevel+" %");
+//
+//            }
+//
+//            if(deviceStatus == BatteryManager.BATTERY_STATUS_UNKNOWN){
+//
+//                txt_battery.setText(currentBatteryStatus+" Unknown at "+batteryLevel+" %");
+//            }
+//
+//
+//            if (deviceStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING){
+//
+//                txt_battery.setText(currentBatteryStatus+" = Not Charging at "+batteryLevel+" %");
+//
+//            }
         }
     };
 
@@ -200,19 +212,38 @@ public class dataTransfer extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_transfer);
 
+        //Initiallization
         btn_start = (Button)findViewById(R.id.btn_start);
         btn_stop = (Button)findViewById(R.id.btn_stop);
-        btn_database = (Button)findViewById(R.id.btn_database);
+        ibtn_setting = (ImageButton)findViewById(R.id.ibtn_setting);
+
+        Typeface typeface = Typeface.createFromAsset(getAssets(),"fonts/segoeui.ttf");
         txt_receiveSerial = (TextView)findViewById(R.id.txt_receiveSerial);
         txt_v1 = (TextView)findViewById(R.id.txt_v1);
         txt_v2 = (TextView)findViewById(R.id.txt_v2);
         txt_v3 = (TextView)findViewById(R.id.txt_v3);
         txt_v4 = (TextView)findViewById(R.id.txt_v4);
-        txt_I = (TextView)findViewById(R.id.txt_I);
         txt_daya = (TextView)findViewById(R.id.txt_daya);
-        txt_lenData = (TextView)findViewById(R.id.txt_lenData);
         txt_battery = (TextView)findViewById(R.id.txt_battery);
 
+        txt_v1.setTypeface(typeface);
+        txt_v2.setTypeface(typeface);
+        txt_v3.setTypeface(typeface);
+        txt_v4.setTypeface(typeface);
+        txt_daya.setTypeface(typeface);
+
+        img_konGagal = (ImageView)findViewById(R.id.img_konGagal);
+        img_konSukses = (ImageView)findViewById(R.id.img_konSukses);
+        img_konSukses.setVisibility(View.GONE);
+        img_konGagal.setVisibility(View.GONE);
+        //============================================================================
+
+
+
+        //Debug
+//        btn_database = (Button)findViewById(R.id.btn_database);
+//        txt_I = (TextView)findViewById(R.id.txt_I);
+//        txt_lenData = (TextView)findViewById(R.id.txt_lenData);
 
         setUiEnabled(false);
 
@@ -263,10 +294,12 @@ public class dataTransfer extends AppCompatActivity{
 
     }
 
+    /*
     public void toDatabase(View view){
         Intent intent = new Intent(this,ShowData.class);
         startActivity(intent);
     }
+    */
 
     public void setUiEnabled(boolean bool) {
         btn_start.setEnabled(!bool);
@@ -317,44 +350,6 @@ public class dataTransfer extends AppCompatActivity{
             @Override
             public void run() {
                 try{
-//                    if(ftext.contains("on")){
-//                        ftxtView.setText(ftext);
-//                        TAG_SERIAL = "$1#0";
-////                        TAG_SERIAL = "1"; //for debug
-//                        serialPort.write(TAG_SERIAL.getBytes());
-////                        FLAG_DATA_COMPLETE = false;
-//
-//                    }
-//                    ftxtView.setText(ftext);
-                    /*
-                    if(ftext.contains("on") || !FLAG_DATA_COMPLETE){
-                        ftxtView.setText(ftext);
-                        TAG_SERIAL = "$1#0";
-//                        TAG_SERIAL = "1"; //for debug
-                        serialPort.write(TAG_SERIAL.getBytes());
-                        FLAG_DATA_COMPLETE = false;
-
-                    }else if(ftext.isEmpty()){
-                        FLAG_DATA_COMPLETE = false;
-
-                    }else{
-                        ftxtView.setText(ftext);
-                        parsingSerial(ftext);
-
-                        if(FLAG_DATA_COMPLETE == false){
-                            TAG_SERIAL = "$0#0";
-    //                        TAG_SERIAL = "0"; //for debug
-                            serialPort.write(TAG_SERIAL.getBytes());
-                        }else{
-                            TAG_SERIAL = "$1#0";
-                            //                        TAG_SERIAL = "0"; //for debug
-                            serialPort.write(TAG_SERIAL.getBytes());
-                        }
-
-
-                    }
-*/
-
                     parsingSerial(ftext);
                     ftxtView.setText(ftext);
 //                    txt_daya.setText(String.valueOf(moveSerial));
@@ -371,46 +366,70 @@ public class dataTransfer extends AppCompatActivity{
         splitedInput = input.split(" ");
         pjgData = splitedInput.length;
 
-        txt_lenData.setText(String.valueOf(pjgData));
+//        txt_lenData.setText(String.valueOf(pjgData));
 
 //        Toast.makeText(dataTransfer.this,""+pjgData,Toast.LENGTH_SHORT).show();
         if(pjgData == 6){
             if((splitedInput[0].replaceAll("[0-9]+","")).equalsIgnoreCase("a")){
                 value_VSatu = splitedInput[0].replaceAll("[a-z]+","");
-                txt_v1.setText(value_VSatu);
+                //convert to real data
+                f_Vr = ((float)Integer.parseInt(value_VSatu))/100;
+                value_VSatu = String.format("%.2f",f_Vr);
+                txt_v1.setText(value_VSatu); //Vr
             }
 
             if((splitedInput[1].replaceAll("[0-9]+","")).equalsIgnoreCase("b")){
                 value_VDua = splitedInput[1].replaceAll("[a-z]+","");
-                txt_v2.setText(value_VDua);
+                //convert to real data
+                f_Vs = ((float)Integer.parseInt(value_VDua))/100;
+                value_VDua = String.format("%.2f",f_Vs);
+                txt_v2.setText(value_VDua); //Vs
             }
 
             if((splitedInput[2].replaceAll("[0-9]+","")).equalsIgnoreCase("c")){
                 value_VTiga = splitedInput[2].replaceAll("[a-z]+","");
-                txt_v3.setText(value_VTiga);
+                //convert to real data
+                f_Vt = ((float)Integer.parseInt(value_VTiga))/100;
+                value_VTiga = String.format("%.2f",f_Vt);
+                txt_v3.setText(value_VTiga); //Vt
             }
 
             if((splitedInput[3].replaceAll("[0-9]+","")).equalsIgnoreCase("d")){
                 value_VEmpat = splitedInput[3].replaceAll("[a-z]+","");
-                txt_v4.setText(value_VEmpat);
+                //convert to real data
+                f_I1 = ((float)Integer.parseInt(value_VEmpat))/100;
+                value_VEmpat = String.format("%.2f",f_I1);
+
+                if(FLAG_ARUS_1){
+                    f_daya = f_I1*f_Vt;
+                    value_P = String.format("%.2f",f_daya);
+                    txt_v4.setText(value_VEmpat); //I
+                    txt_daya.setText(value_P);
+                }
+
             }
 
             if((splitedInput[4].replaceAll("[0-9]+","")).equalsIgnoreCase("e")){
-                value_I = splitedInput[4].replaceAll("[a-z]+","");
-                txt_I.setText(value_I);
+                value_I = splitedInput[4].replaceAll("[a-z]+",""); //I2
+                //convert to real data
+                f_I2 = ((float)Integer.parseInt(value_I))/100;
+                value_I = String.format("%.2f",f_I2);
+
+                if(!FLAG_ARUS_1){
+                    f_daya = f_I2*f_Vt;
+                    value_P = String.format("%.2f",f_daya);
+                    txt_v4.setText(value_I); //I2
+                    txt_daya.setText(value_P);
+                }
             }
 
             if((splitedInput[5].replaceAll("[0-9]+","")).equalsIgnoreCase("f")){
-                value_P = splitedInput[5].replaceAll("[a-z]+","");
-                txt_daya.setText(value_P);
+                status_SerialMikro = splitedInput[5].replaceAll("[a-z]+",""); //status
             }
 
             FLAG_DATA_COMPLETE = true;
-
             pjgData = 0;
             splitedInput = null;
-
-
         }else{
             FLAG_DATA_COMPLETE = false;
         }
@@ -465,9 +484,10 @@ public class dataTransfer extends AppCompatActivity{
     class MyTimerTask extends TimerTask{
 
         final class StoreData extends AsyncTask<String, String, String>{
-
             @Override
             protected String doInBackground(String... strings) {
+                JSONParser jsonParser = new JSONParser();
+                JSONObject json;
                 List<NameValuePair> params = new ArrayList<>();
 
                 //For debug only
@@ -477,7 +497,6 @@ public class dataTransfer extends AppCompatActivity{
 //                value_VEmpat = "4";
 //                value_I = "5";
 //                value_P = "6";
-
                 if(!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
                         && !value_VEmpat.isEmpty() && !value_I.isEmpty() && !value_P.isEmpty()){
 
@@ -488,24 +507,28 @@ public class dataTransfer extends AppCompatActivity{
                     params.add(new BasicNameValuePair(TAG_I,value_I));
                     params.add(new BasicNameValuePair(TAG_P,value_P));
 
-                    JSONObject json = jsonParser.makeHttpRequest(url_create, "GET", params);
+                    json = jsonParser.makeHttpRequest(url_create, "GET", params);
 
                     try{
+                        success = 0;
+                        success = json.getInt(TAG_SUCCESS);
 
-                        int success = json.getInt(TAG_SUCCESS);;
-
-                        if(success!=1){
-                            return "gagal database";
+                        if(success == 1){
+                            return "sukses";
+                        }else{
+                            return "gagal koneksi";
                         }
+
                     }catch (JSONException e){
                         e.printStackTrace();
-                        return "gagal koneksi";
-                    }catch (NullPointerException e){
-                        e.printStackTrace();
+                        cekJson = "0";
                         return "gagal koneksi";
                     }
-
-                    return "sukses";
+                    catch (NullPointerException e){
+                        e.printStackTrace();
+                        cekJson = "0";
+                        return "gagal koneksi";
+                    }
                 }
 
                 return "gagal database";
@@ -516,14 +539,30 @@ public class dataTransfer extends AppCompatActivity{
                 super.onPostExecute(s);
                 if(s.equalsIgnoreCase("gagal database")){
                     status_kirimDB = 0;
+
+                    img_konSukses.setVisibility(View.GONE);
+                    img_konGagal.setVisibility(View.VISIBLE);
+
                 }else if(s.equalsIgnoreCase("gagal koneksi")){
                     status_kirimDB = 1;
+
+                    img_konSukses.setVisibility(View.GONE);
+                    img_konGagal.setVisibility(View.VISIBLE);
+
                 }else if(s.equalsIgnoreCase("sukses")){
                     status_kirimDB = 2;
                     FLAG_DATA_COMPLETE = false;
+                    success = 0;
+
+                    img_konSukses.setVisibility(View.VISIBLE);
+                    img_konGagal.setVisibility(View.GONE);
+                }else{
+                    img_konSukses.setVisibility(View.GONE);
+                    img_konGagal.setVisibility(View.VISIBLE);
                 }
 
-                Toast.makeText(dataTransfer.this, s, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(dataTransfer.this, cekJson, Toast.LENGTH_SHORT).show();
+
             }
         }
 
@@ -588,7 +627,6 @@ public class dataTransfer extends AppCompatActivity{
         }
         @Override
         public void run() {
-
 
             //for bug
             if(FLAG_DATA_COMPLETE){
