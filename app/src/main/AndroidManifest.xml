@@ -25,11 +25,13 @@
 
             <!-- android:clearTaskOnLaunch="true" -->
             <!-- android:stateNotNeeded="true">&lt;!&ndash;Clear for debug&ndash;&gt; -->
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
             <!-- <category android:name="android.intent.category.HOME"/>&lt;!&ndash;Clear for debug&ndash;&gt; -->

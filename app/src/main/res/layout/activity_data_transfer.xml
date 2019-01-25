@@ -87,18 +87,24 @@
 
         <ImageView
             android:id="@+id/img_konSukses"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="20dp"
             android:src="@drawable/koneksi_sukses"
-            android:padding="2dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:layout_toRightOf="@id/txt_battery"/>
 
         <ImageView
             android:id="@+id/img_konGagal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="20dp"
             android:src="@drawable/koneksi_gagal"
-            android:padding="2dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:layout_toRightOf="@id/txt_battery"/>
 
     </RelativeLayout>

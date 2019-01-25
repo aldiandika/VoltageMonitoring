@@ -11,6 +11,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -77,6 +78,8 @@ public class dataTransfer extends AppCompatActivity{
     int success;
     String cekJson;
 
+//    int cekCrash = 0, last_cekCrash = 0, buff_cekCrash = 0;
+
     public static final String TAG_SUCCESS = "success";
     public static final String TAG_V_SATU = "voltage_satu"; //Vr
     public static final String TAG_V_DUA = "voltage_dua"; //Vs
@@ -85,19 +88,20 @@ public class dataTransfer extends AppCompatActivity{
     public static final String TAG_I = "arus"; //arus 2
     public static final String TAG_P = "daya"; //daya
 
-    float f_Vr, f_Vs, f_Vt, f_I1, f_I2, f_daya;
+    float f_Vr, f_Vs, f_Vt, f_I1, f_I2, f_daya, last_Vt, last_I1;
 
     public static int status_kirimDB; //0 = "Gagal database", 1 = "Gagal Koneksi", 2 = "Sukses"
 
     public static boolean FLAG_DATA_COMPLETE = false;
     public static boolean FLAG_ARUS_1 = true;
+//    static boolean FLAG_CRASH = false;
 
     private MyTimerTask.StoreData myasyncTask;
     private MyTimerTask.StoreSQlite sqliteAsyncTask;
 
     int pjgData, deviceStatus;
 
-    String currentBatteryStatus="";
+//    String currentBatteryStatus="";
     float percentage;
     String[] splitedInput;
 
@@ -107,7 +111,9 @@ public class dataTransfer extends AppCompatActivity{
 //    boolean inserted;
     DatabaseHelper dbSqlite;
 
-    int count;//for debug
+//    int count;//for debug
+//    int countCrash;
+//    Thread crashThread;
 
     //Receive serial data
     UsbSerialInterface.UsbReadCallback callback = new UsbSerialInterface.UsbReadCallback() {
@@ -121,6 +127,7 @@ public class dataTransfer extends AppCompatActivity{
 
             }catch (UnsupportedEncodingException e){
                 e.printStackTrace();
+                Toast.makeText(dataTransfer.this,"error serial",Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -144,7 +151,6 @@ public class dataTransfer extends AppCompatActivity{
                             serialPort.setParity(UsbSerialInterface.PARITY_NONE);
                             serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
                             serialPort.read(callback);
-                            appendText(txt_receiveSerial,"Serial Port Opened");
                         }else {
                             Log.d("serial","PORT NOT OPEN");
                         }
@@ -155,9 +161,9 @@ public class dataTransfer extends AppCompatActivity{
                     Log.d("serial","NOT GRANTED!!!");
                 }
             }else if(intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)){
-                onClickStart(btn_start);
+//                onClickStart(btn_start);
             }else if(intent.getAction().equals(UsbManager.ACTION_USB_ACCESSORY_DETACHED)){
-                onClickStop(btn_stop);
+//                onClickStop(btn_stop);
             }
 
 
@@ -287,6 +293,8 @@ public class dataTransfer extends AppCompatActivity{
         }
 
 
+//        cekCrashThread();
+
         MyTimerTask myTask = new MyTimerTask();
         Timer myTimer = new Timer();
 
@@ -352,6 +360,8 @@ public class dataTransfer extends AppCompatActivity{
                 try{
                     parsingSerial(ftext);
                     ftxtView.setText(ftext);
+
+//                    Toast.makeText(dataTransfer.this,"cek= "+cekCrash+" last_cek= "+last_cekCrash,Toast.LENGTH_SHORT).show();
 //                    txt_daya.setText(String.valueOf(moveSerial));
 
                 }
@@ -362,13 +372,54 @@ public class dataTransfer extends AppCompatActivity{
         });
     }
 
+    /*
+    private void cekCrashThread(){
+        crashThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!FLAG_CRASH){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if((cekCrash == last_cekCrash) && (cekCrash != 0 && last_cekCrash != 0)){
+                                if(countCrash == Integer.MAX_VALUE){
+                                    countCrash = 0;
+                                }else{
+                                    countCrash++;
+                                }
+
+                                if(countCrash > 5){
+                                    Toast.makeText(dataTransfer.this,"Serial error",Toast.LENGTH_SHORT).show();
+                                    unregisterReceiver(broadcastReceiver);
+                                    FLAG_CRASH = true;
+                                }
+                            }
+                            last_cekCrash = cekCrash;
+
+                            txt_v1.setText(String.valueOf(last_cekCrash));
+                            txt_v2.setText(String.valueOf(countCrash));
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(1000);//5
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+//                serialPort.close();
+            }
+        });
+        crashThread.start();
+    }
+    */
+
     private void parsingSerial(String input){
         splitedInput = input.split(" ");
         pjgData = splitedInput.length;
 
-//        txt_lenData.setText(String.valueOf(pjgData));
 
-//        Toast.makeText(dataTransfer.this,""+pjgData,Toast.LENGTH_SHORT).show();
+//        txt_lenData.setText(String.valueOf(pjgData));
         if(pjgData == 6){
             if((splitedInput[0].replaceAll("[0-9]+","")).equalsIgnoreCase("a")){
                 value_VSatu = splitedInput[0].replaceAll("[a-z]+","");
@@ -427,12 +478,21 @@ public class dataTransfer extends AppCompatActivity{
                 status_SerialMikro = splitedInput[5].replaceAll("[a-z]+",""); //status
             }
 
+//=====================================================================
+
+
+//            cekCrash++;
+//            txt_daya.setText(String.valueOf(cekCrash));
+//            Toast.makeText(dataTransfer.this, ""+buff_cekCrash, Toast.LENGTH_SHORT).show();
+
+//============================================================
             FLAG_DATA_COMPLETE = true;
             pjgData = 0;
             splitedInput = null;
         }else{
             FLAG_DATA_COMPLETE = false;
         }
+
     }
 
     @Override
@@ -628,6 +688,18 @@ public class dataTransfer extends AppCompatActivity{
         @Override
         public void run() {
 
+//            buff_cekCrash = cekCrash;
+//            if(buff_cekCrash == last_cekCrash){
+//                countCrash++;
+//                if(countCrash >= 2){
+//                    countCrash = 0;
+//                    cekCrash = 0;
+//
+//                    Intent intent = new Intent(dataTransfer.this,dataTransfer.class);
+//                    startActivity(intent);
+//                }
+//            }
+
             //for bug
             if(FLAG_DATA_COMPLETE){
                 myasyncTask =  new StoreData();
@@ -638,17 +710,17 @@ public class dataTransfer extends AppCompatActivity{
                 sqliteAsyncTask.execute();
 
                 TAG_SERIAL = "$1#";
-//                //                TAG_SERIAL = "1"; //for debug
                 serialPort.write(TAG_SERIAL.getBytes());
 
             }else{
-//                moveSerial = 3;
-                TAG_SERIAL = "$1#";
-//                //                TAG_SERIAL = "1"; //for debug
-                serialPort.write(TAG_SERIAL.getBytes());
-//                Toast.makeText(dataTransfer.this,"minta data",Toast.LENGTH_SHORT).show();
-            }
+                try{
+                    TAG_SERIAL = "$1#";
+                    serialPort.write(TAG_SERIAL.getBytes());
+                }catch (NullPointerException e){
+                    e.printStackTrace();
+                }
 
+            }
 
         }
     }

@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btn_toSerial, btn_showData;
+    Button btn_toSerial, btn_showData, btn_showSetting;
     EditText edit_serverAddr;
 
 
@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
         btn_toSerial = (Button)findViewById(R.id.btn_toSerial);
         btn_showData = (Button)findViewById(R.id.btn_showData);
-
     }
 
 
@@ -53,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void toShowData(View view){
         Intent intent = new Intent(this,ShowData.class);
+        startActivity(intent);
+    }
+
+    public void toShowSetting(View view){
+        Intent intent = new Intent(this, com.example.aldiandika.voltagemonitoring.Settings.class);
         startActivity(intent);
     }
 
