@@ -5,6 +5,7 @@
     android:layout_height="55dp"
     android:paddingTop="2dp"
     android:paddingBottom="2dp"
+    android:background="@color/colorBg"
     android:orientation="horizontal">
 
         <TextView
@@ -14,6 +15,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:visibility="gone"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
         <TextView
@@ -22,6 +24,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
         <TextView
@@ -30,6 +33,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
         <TextView
@@ -38,6 +42,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
         <TextView
@@ -46,6 +51,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
         <TextView
@@ -54,6 +60,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
         <TextView
@@ -62,6 +69,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
         <TextView
@@ -70,6 +78,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:textColor="@color/colorTextLight"
             android:text="1"/>
 
 

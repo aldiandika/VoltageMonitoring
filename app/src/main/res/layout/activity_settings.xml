@@ -12,12 +12,25 @@
         android:layout_height="0dp"
         android:layout_weight="1.3">
 
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/ic_arrow_back_black_24dp"
+            android:onClick="toBack"/>
+
         <TextView
             android:id="@+id/tulisan_pengaturan"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
+            android:layout_toRightOf="@id/btn_back"
+            android:layout_toEndOf="@id/btn_back"
             android:textStyle="bold"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="4dp"
@@ -154,6 +167,7 @@
                             android:layout_width="300dp"
                             android:layout_height="wrap_content"
                             android:scrollbarStyle="outsideOverlay"
+                            android:max="100"
                             android:progressTint="@color/colorTextLight"
                             android:thumbTint="@color/colorAccent" />
 
@@ -166,7 +180,8 @@
                             android:gravity="center"
                             android:text="-50"
                             android:textSize="14sp"
-                            android:inputType="number"
+                            android:digits="0123456789-"
+                            android:imeOptions="actionDone"
                             android:maxLines="1"/>
                     </LinearLayout>
 
@@ -191,6 +206,7 @@
                             android:layout_width="300dp"
                             android:layout_height="wrap_content"
                             android:scrollbarStyle="outsideOverlay"
+                            android:max="100"
                             android:progressTint="@color/colorTextLight"
                             android:thumbTint="@color/colorAccent" />
 
@@ -203,7 +219,8 @@
                             android:gravity="center"
                             android:text="-50"
                             android:textSize="14sp"
-                            android:inputType="number"
+                            android:digits="0123456789-"
+                            android:imeOptions="actionDone"
                             android:maxLines="1"/>
                     </LinearLayout>
 
@@ -229,6 +246,7 @@
                             android:layout_height="wrap_content"
                             android:scrollbarStyle="outsideOverlay"
                             android:progressTint="@color/colorTextLight"
+                            android:max="100"
                             android:thumbTint="@color/colorAccent" />
 
                         <EditText
@@ -240,7 +258,8 @@
                             android:gravity="center"
                             android:text="-50"
                             android:textSize="14sp"
-                            android:inputType="number"
+                            android:imeOptions="actionDone"
+                            android:digits="0123456789-"
                             android:maxLines="1"/>
                     </LinearLayout>
 
@@ -288,7 +307,8 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:textColor="@color/colorPrimary"
-                        android:background="@drawable/border_button"/>
+                        android:background="@drawable/border_button"
+                        android:onClick="lihatData"/>
 
                 </LinearLayout>
 
@@ -303,7 +323,8 @@
                     android:textSize="12sp"
                     android:textColor="@color/colorAccent"
                     android:textStyle="bold"
-                    android:background="@drawable/border"/>
+                    android:background="@drawable/border"
+                    android:onClick="saveData"/>
 
             </LinearLayout>
         </ScrollView>

@@ -5,131 +5,175 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".ShowData">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="@android:color/darker_gray"
-        android:padding="2dp">
+        android:layout_height="0dp"
+        android:layout_weight="1.3">
+
+        <ImageButton
+            android:id="@+id/btn_kembali"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/ic_arrow_back_black_24dp"
+            android:onClick="kembali"/>
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.3"
-            android:text="Perlihatkan data pada tanggal :"/>
-
-        <TextView
-            android:id="@+id/txt_setTgl"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/btn_back"
+            android:layout_toEndOf="@id/btn_kembali"
             android:textStyle="bold"
-            android:textColor="@color/colorAccent"
-            android:text="2018/12/12"/>
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:text="Database "
+            android:textColor="@color/colorBg"/>
 
-        <Button
-            android:id="@+id/btn_show"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:background="@color/colorButtonOk"
-            android:textColor="@color/colorTextLight"
-            android:text="tampilkan"
-            android:onClick="showDataAt"/>
+    </RelativeLayout>
 
-    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
-        android:orientation="vertical">
+        android:layout_weight="12"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="@color/colorBg">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:orientation="horizontal">
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@android:color/darker_gray"
+            android:padding="2dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="1.3"
                 android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:visibility="gone"
-                android:text="ID"/>
+                android:text="Perlihatkan data pada tanggal :"/>
 
             <TextView
+                android:id="@+id/txt_setTgl"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:text="V1"/>
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorAccent"
+                android:text="2018/12/12"/>
 
-            <TextView
+            <Button
+                android:id="@+id/btn_show"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_weight="1"
+                android:background="@color/colorButtonOk"
                 android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:text="V2"/>
+                android:text="tampilkan"
+                android:onClick="showDataAt"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:text="V3"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:text="V4"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:text="Arus"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:text="Daya"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/colorTextLight"
-                android:gravity="center"
-                android:text="Tanggal"/>
 
         </LinearLayout>
-
-        <ListView
-            android:id="@+id/mainList"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="#b5b5b5"
-            android:dividerHeight="1dp">
-        </ListView>
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBtnDatabase"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:text="ID"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:text="V1"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:text="V2"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:text="V3"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:text="V4"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:text="Arus"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:text="Daya"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/colorBg"
+                    android:gravity="center"
+                    android:text="Tanggal"/>
+
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/mainList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="#b5b5b5"
+                android:dividerHeight="1dp">
+            </ListView>
+
+        </LinearLayout>
     </LinearLayout>
+
 
 
 

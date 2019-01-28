@@ -59,7 +59,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".dataTransfer" />
         </activity>
-        <activity android:name=".Settings"></activity>
+        <activity android:name=".Settings"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape">
+
+        </activity>
     </application>
 
 </manifest>

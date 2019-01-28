@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.aldiandika.voltagemonitoring.server.Server;
 import com.example.aldiandika.voltagemonitoring.util.DatabaseHelper;
+import com.example.aldiandika.voltagemonitoring.util.DatabaseSettingHelper;
 import com.example.aldiandika.voltagemonitoring.util.JSONParser;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
@@ -110,6 +112,13 @@ public class dataTransfer extends AppCompatActivity{
     String formattedDate;
 //    boolean inserted;
     DatabaseHelper dbSqlite;
+    DatabaseSettingHelper dbSetting;
+
+    private int param_vr, param_vs, param_vt;
+    private String sensorArus;
+
+    private String stringDebug;
+
 
 //    int count;//for debug
 //    int countCrash;
@@ -181,35 +190,6 @@ public class dataTransfer extends AppCompatActivity{
             int batteryLevel=(int)(((float)level / (float)scale) * 100.0f);
 
             txt_battery.setText("" +batteryLevel+ " %");
-//            if(deviceStatus == BatteryManager.BATTERY_STATUS_CHARGING){
-//
-//                txt_battery.setText(currentBatteryStatus+" Charging at "+batteryLevel+" %");
-//
-//            }
-//
-//            if(deviceStatus == BatteryManager.BATTERY_STATUS_DISCHARGING){
-//
-//                txt_battery.setText(currentBatteryStatus+" Discharging at "+batteryLevel+" %");
-//
-//            }
-//
-//            if (deviceStatus == BatteryManager.BATTERY_STATUS_FULL){
-//
-//                txt_battery.setText(currentBatteryStatus+" Battery Full at "+batteryLevel+" %");
-//
-//            }
-//
-//            if(deviceStatus == BatteryManager.BATTERY_STATUS_UNKNOWN){
-//
-//                txt_battery.setText(currentBatteryStatus+" Unknown at "+batteryLevel+" %");
-//            }
-//
-//
-//            if (deviceStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING){
-//
-//                txt_battery.setText(currentBatteryStatus+" = Not Charging at "+batteryLevel+" %");
-//
-//            }
         }
     };
 
@@ -244,8 +224,6 @@ public class dataTransfer extends AppCompatActivity{
         img_konGagal.setVisibility(View.GONE);
         //============================================================================
 
-
-
         //Debug
 //        btn_database = (Button)findViewById(R.id.btn_database);
 //        txt_I = (TextView)findViewById(R.id.txt_I);
@@ -268,7 +246,7 @@ public class dataTransfer extends AppCompatActivity{
         SimpleDateFormat df = new SimpleDateFormat("yyyy/M/d");
         formattedDate = df.format(tgl);
 
-        Toast.makeText(dataTransfer.this, formattedDate, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(dataTransfer.this, formattedDate, Toast.LENGTH_SHORT).show();
 
         //For debug
         HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
@@ -292,14 +270,47 @@ public class dataTransfer extends AppCompatActivity{
             }
         }
 
+        //getdata parama from sqlite
+        dbSetting = new DatabaseSettingHelper(this);
+        Cursor cursor = dbSetting.getAllData();
 
-//        cekCrashThread();
+        if(cursor.getCount() == 0){
+            FLAG_ARUS_1 = true;
+            param_vr = 0;
+            param_vs = 0;
+            param_vt = 0;
+        }else{
+            while(cursor.moveToNext()){
+                sensorArus = cursor.getString(1);
+                param_vr = cursor.getInt(2);
+                param_vs = cursor.getInt(3);
+                param_vt = cursor.getInt(4);
+            }
+
+            if(sensorArus.equalsIgnoreCase("1")){
+                FLAG_ARUS_1 = true;
+            }else{
+                FLAG_ARUS_1 = false;
+            }
+        }
+
+        stringDebug = String.valueOf(FLAG_ARUS_1) + " , " +
+                String.valueOf(param_vr) + " , " +
+                String.valueOf(param_vs) + " , " +
+                String.valueOf(param_vt);
+
+//        Toast.makeText(this,stringDebug,Toast.LENGTH_SHORT).show();
+//    ======================================================================================
+
+
 
         MyTimerTask myTask = new MyTimerTask();
         Timer myTimer = new Timer();
 
         myTimer.schedule(myTask,1000, 5000);
 
+
+        //        cekCrashThread();
     }
 
     /*
@@ -372,47 +383,7 @@ public class dataTransfer extends AppCompatActivity{
         });
     }
 
-    /*
-    private void cekCrashThread(){
-        crashThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(!FLAG_CRASH){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if((cekCrash == last_cekCrash) && (cekCrash != 0 && last_cekCrash != 0)){
-                                if(countCrash == Integer.MAX_VALUE){
-                                    countCrash = 0;
-                                }else{
-                                    countCrash++;
-                                }
 
-                                if(countCrash > 5){
-                                    Toast.makeText(dataTransfer.this,"Serial error",Toast.LENGTH_SHORT).show();
-                                    unregisterReceiver(broadcastReceiver);
-                                    FLAG_CRASH = true;
-                                }
-                            }
-                            last_cekCrash = cekCrash;
-
-                            txt_v1.setText(String.valueOf(last_cekCrash));
-                            txt_v2.setText(String.valueOf(countCrash));
-                        }
-                    });
-
-                    try {
-                        Thread.sleep(1000);//5
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-//                serialPort.close();
-            }
-        });
-        crashThread.start();
-    }
-    */
 
     private void parsingSerial(String input){
         splitedInput = input.split(" ");
@@ -424,7 +395,7 @@ public class dataTransfer extends AppCompatActivity{
             if((splitedInput[0].replaceAll("[0-9]+","")).equalsIgnoreCase("a")){
                 value_VSatu = splitedInput[0].replaceAll("[a-z]+","");
                 //convert to real data
-                f_Vr = ((float)Integer.parseInt(value_VSatu))/100;
+                f_Vr = (((float)Integer.parseInt(value_VSatu))/100) + param_vr;
                 value_VSatu = String.format("%.2f",f_Vr);
                 txt_v1.setText(value_VSatu); //Vr
             }
@@ -432,7 +403,7 @@ public class dataTransfer extends AppCompatActivity{
             if((splitedInput[1].replaceAll("[0-9]+","")).equalsIgnoreCase("b")){
                 value_VDua = splitedInput[1].replaceAll("[a-z]+","");
                 //convert to real data
-                f_Vs = ((float)Integer.parseInt(value_VDua))/100;
+                f_Vs = (((float)Integer.parseInt(value_VDua))/100) + param_vs;
                 value_VDua = String.format("%.2f",f_Vs);
                 txt_v2.setText(value_VDua); //Vs
             }
@@ -440,7 +411,7 @@ public class dataTransfer extends AppCompatActivity{
             if((splitedInput[2].replaceAll("[0-9]+","")).equalsIgnoreCase("c")){
                 value_VTiga = splitedInput[2].replaceAll("[a-z]+","");
                 //convert to real data
-                f_Vt = ((float)Integer.parseInt(value_VTiga))/100;
+                f_Vt = (((float)Integer.parseInt(value_VTiga))/100) + param_vt;
                 value_VTiga = String.format("%.2f",f_Vt);
                 txt_v3.setText(value_VTiga); //Vt
             }
@@ -495,6 +466,11 @@ public class dataTransfer extends AppCompatActivity{
 
     }
 
+    public void toSetting(View view){
+        Intent intent = new Intent(this,Settings.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -514,6 +490,36 @@ public class dataTransfer extends AppCompatActivity{
 
         IntentFilter mFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(mBroadccastReceiver,mFilter);
+
+        dbSetting = new DatabaseSettingHelper(this);
+        Cursor cursor = dbSetting.getAllData();
+
+        if(cursor.getCount() == 0){
+            FLAG_ARUS_1 = true;
+            param_vr = 0;
+            param_vs = 0;
+            param_vt = 0;
+        }else{
+            while(cursor.moveToNext()){
+                sensorArus = cursor.getString(1);
+                param_vr = cursor.getInt(2);
+                param_vs = cursor.getInt(3);
+                param_vt = cursor.getInt(4);
+            }
+
+            if(sensorArus.equalsIgnoreCase("1")){
+                FLAG_ARUS_1 = true;
+            }else{
+                FLAG_ARUS_1 = false;
+            }
+        }
+
+        stringDebug = String.valueOf(FLAG_ARUS_1) + " , " +
+                String.valueOf(param_vr) + " , " +
+                String.valueOf(param_vs) + " , " +
+                String.valueOf(param_vt);
+
+//        Toast.makeText(this,stringDebug,Toast.LENGTH_SHORT).show();
     }
 
     private void hideSystemUI() {
@@ -726,3 +732,45 @@ public class dataTransfer extends AppCompatActivity{
     }
 
 }
+
+ /*
+    private void cekCrashThread(){
+        crashThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!FLAG_CRASH){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if((cekCrash == last_cekCrash) && (cekCrash != 0 && last_cekCrash != 0)){
+                                if(countCrash == Integer.MAX_VALUE){
+                                    countCrash = 0;
+                                }else{
+                                    countCrash++;
+                                }
+
+                                if(countCrash > 5){
+                                    Toast.makeText(dataTransfer.this,"Serial error",Toast.LENGTH_SHORT).show();
+                                    unregisterReceiver(broadcastReceiver);
+                                    FLAG_CRASH = true;
+                                }
+                            }
+                            last_cekCrash = cekCrash;
+
+                            txt_v1.setText(String.valueOf(last_cekCrash));
+                            txt_v2.setText(String.valueOf(countCrash));
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(1000);//5
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+//                serialPort.close();
+            }
+        });
+        crashThread.start();
+    }
+    */

@@ -40,8 +40,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*
         btn_toSerial = (Button)findViewById(R.id.btn_toSerial);
         btn_showData = (Button)findViewById(R.id.btn_showData);
+        */
     }
 
 

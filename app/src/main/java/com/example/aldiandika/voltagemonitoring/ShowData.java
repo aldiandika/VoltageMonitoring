@@ -1,6 +1,7 @@
 package com.example.aldiandika.voltagemonitoring;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -144,6 +145,10 @@ public class ShowData extends AppCompatActivity {
 
         mainList.setAdapter(new ListAdapter(ShowData.this,list_data));
 
+    }
+
+    public void kembali(View view){
+        finish();
     }
 
     private void hideSystemUI() {
