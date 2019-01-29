@@ -19,6 +19,13 @@
         android:textColor="@color/colorAccent"
         android:text="Power Meter"/>
 
+    <Button
+        android:id="@+id/btn_turnoff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="turn off screen"
+        android:onClick="turnoffscreen"/>
+
 
 </LinearLayout>
 

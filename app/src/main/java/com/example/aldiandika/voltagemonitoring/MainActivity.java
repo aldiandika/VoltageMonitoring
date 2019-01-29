@@ -10,6 +10,8 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,21 +33,45 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btn_toSerial, btn_showData, btn_showSetting;
+    Button btn_toSerial, btn_showData, btn_showSetting, btn_turnoff;
     EditText edit_serverAddr;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        btn_turnoff = (Button)findViewById(R.id.btn_turnoff);
+
+//        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+//        wl.acquire();
+
+        Intent intent = new Intent(MainActivity.this,dataTransfer.class);
+        startActivity(intent);
+        finish();
+
+
         /*
         btn_toSerial = (Button)findViewById(R.id.btn_toSerial);
         btn_showData = (Button)findViewById(R.id.btn_showData);
         */
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                Intent intent = new Intent(MainActivity.this,dataTransfer.class);
+//                startActivity(intent);
+//                finish();
+//            }
+//        }, 2000);
+
     }
 
+    public void turnoffscreen(View view){
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+        wl.acquire();
+    }
 
     public void toDataTransfer(View view){
         Intent intent = new Intent(this,dataTransfer.class);

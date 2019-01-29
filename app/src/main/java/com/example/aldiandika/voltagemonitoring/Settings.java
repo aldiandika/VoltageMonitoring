@@ -1,5 +1,7 @@
 package com.example.aldiandika.voltagemonitoring;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
@@ -8,11 +10,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.aldiandika.voltagemonitoring.data.DataSetting;
@@ -22,11 +26,14 @@ import com.example.aldiandika.voltagemonitoring.util.DatabaseSettingHelper;
 public class Settings extends AppCompatActivity {
 
     DatabaseSettingHelper settingDb;
+    DatabaseHelper datasqliteDb;
     RadioGroup radio_sensor;
     RadioButton radio_sensorSatu, radio_sensorDua;
 
-    Button btn_lihatData, btn_simpan;
+    Button btn_lihatData, btn_simpan, btn_resetData;
     ImageButton btn_back;
+
+    Switch sw_wakelock;
 
     SeekBar seek_vr, seek_vs, seek_vt;
     EditText edit_vr, edit_vs, edit_vt;
@@ -34,7 +41,7 @@ public class Settings extends AppCompatActivity {
     DataSetting dataSetting;
 
     int selectedSensor, valueVr, valueVs, valueVt,
-    seekbarValR, seekbarValS, seekbarValT;
+    seekbarValR, seekbarValS, seekbarValT, valWakelock;
 
     int editValR,editValS,editValT;
 
@@ -62,12 +69,15 @@ public class Settings extends AppCompatActivity {
 
         btn_lihatData = (Button)findViewById(R.id.btn_lihatdata);
         btn_simpan = (Button)findViewById(R.id.btn_simpan);
+        btn_resetData = (Button)findViewById(R.id.btn_resetData);
 
         btn_back = (ImageButton)findViewById(R.id.btn_back);
 
         radio_sensor = (RadioGroup)findViewById(R.id.radio_sensor);
         radio_sensorSatu = (RadioButton)findViewById(R.id.radio_sensorSatu);
         radio_sensorDua = (RadioButton)findViewById(R.id.radio_sensorDua);
+
+        sw_wakelock = (Switch)findViewById(R.id.sw_wakelock);
 
         settingDb = new DatabaseSettingHelper(this);
         Cursor cursor = settingDb.getAllData();
@@ -79,14 +89,16 @@ public class Settings extends AppCompatActivity {
             dataSetting.setConst_vr(0);
             dataSetting.setConst_vs(0);
             dataSetting.setConst_vt(0);
+            dataSetting.setFlagWakelock("0");
 
             selectedSensor = Integer.parseInt(dataSetting.getFlagSensor());
             valueVr = dataSetting.getConst_vr();
             valueVs = dataSetting.getConst_vs();
             valueVt = dataSetting.getConst_vt();
+            valWakelock= Integer.parseInt(dataSetting.getFlagWakeLock());
 
             boolean dataInserted = settingDb.insertData(dataSetting.getFlagSensor(),dataSetting.getConst_vr(),
-                    dataSetting.getConst_vs(),dataSetting.getConst_vt());
+                    dataSetting.getConst_vs(),dataSetting.getConst_vt(),dataSetting.getFlagWakeLock());
 
             if(dataInserted){
 //                Toast.makeText(this,"Data Inserted", Toast.LENGTH_SHORT).show();
@@ -104,19 +116,24 @@ public class Settings extends AppCompatActivity {
                 dataSetting.setConst_vr(cursor.getInt(2));
                 dataSetting.setConst_vs(cursor.getInt(3));
                 dataSetting.setConst_vt(cursor.getInt(4));
+                dataSetting.setFlagWakelock(cursor.getString(5));
             }
 
             selectedSensor = Integer.parseInt(dataSetting.getFlagSensor());
             valueVr = dataSetting.getConst_vr();
             valueVs = dataSetting.getConst_vs();
             valueVt = dataSetting.getConst_vt();
+            valWakelock = Integer.parseInt(dataSetting.getFlagWakeLock());
 
             stringDebug = dataSetting.getFlagSensor() + " , " +
                     String.valueOf(dataSetting.getConst_vr()) + " , " +
                     String.valueOf(dataSetting.getConst_vs()) + " , " +
-                    String.valueOf(dataSetting.getConst_vt());
+                    String.valueOf(dataSetting.getConst_vt()) + " , " +
+                    dataSetting.getFlagWakeLock();
         }
 
+
+//        Toast.makeText(this, stringDebug, Toast.LENGTH_SHORT).show();
 
 //        radio button
         if(selectedSensor == 1){
@@ -286,6 +303,29 @@ public class Settings extends AppCompatActivity {
             }
         });
 
+//    ==================================================================================
+
+        //sw wakelock
+
+        if(valWakelock == 1){
+            sw_wakelock.setChecked(true);
+        }else{
+            sw_wakelock.setChecked(false);
+        }
+
+        sw_wakelock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    Toast.makeText(Settings.this,"Wakelock On",Toast.LENGTH_SHORT).show();
+                    valWakelock = 1;
+                }else{
+                    Toast.makeText(Settings.this,"Wakelock Off",Toast.LENGTH_SHORT).show();
+                    valWakelock = 0;
+                }
+            }
+        });
+
 
     }
 
@@ -306,22 +346,47 @@ public class Settings extends AppCompatActivity {
         stringDebug = String.valueOf(selectedSensor) + " , " +
                 String.valueOf(valueVr) + " , " +
                 String.valueOf(valueVs) + " , " +
-                String.valueOf(valueVt);
+                String.valueOf(valueVt) + " , " +
+                String.valueOf(valWakelock);
 
         dataSetting.setFlagSensor(String.valueOf(selectedSensor));
         dataSetting.setConst_vr(valueVr);
         dataSetting.setConst_vs(valueVs);
         dataSetting.setConst_vt(valueVt);
+        dataSetting.setFlagWakelock(String.valueOf(valWakelock));
 
         settingDb.updateData("1",dataSetting.getFlagSensor(),dataSetting.getConst_vr(),
-                dataSetting.getConst_vs(),dataSetting.getConst_vt());
-        Toast.makeText(this, "Data Tersimpan", Toast.LENGTH_SHORT).show();
+                dataSetting.getConst_vs(),dataSetting.getConst_vt(),dataSetting.getFlagWakeLock());
+        Toast.makeText(this, "Pengaturan Tersimpan", Toast.LENGTH_SHORT).show();
         finish();
     }
 
     public void lihatData(View view){
         Intent intent = new Intent(this,ShowData.class);
         startActivity(intent);
+    }
+
+    public void resetData(View view){
+        datasqliteDb = new DatabaseHelper(this);
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        datasqliteDb.deleteAllData();
+                        Toast.makeText(Settings.this,"Data Berhasil Dihapus",Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+//                        Toast.makeText(Settings.this,"tidak",Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(Settings.this);
+        builder.setMessage("Reset Database?").setPositiveButton("Ya", dialogClickListener)
+                .setNegativeButton("Tidak", dialogClickListener).show();
     }
 
     private void hideSystemUI() {

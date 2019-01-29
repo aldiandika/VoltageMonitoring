@@ -6,6 +6,7 @@ public class DataSetting {
     private int const_vr;
     private int const_vs;
     private int const_vt;
+    private String flagWakelock;
 
     public String getFlagSensor(){
         return this.flagSensor;
@@ -37,6 +38,14 @@ public class DataSetting {
 
     public int getConst_vt(){
         return this.const_vt;
+    }
+
+    public String getFlagWakeLock(){
+        return this.flagWakelock;
+    }
+
+    public void setFlagWakelock(String flagWakelock){
+        this.flagWakelock = flagWakelock;
     }
 
 }

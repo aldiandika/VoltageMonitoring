@@ -13,12 +13,13 @@ public class DatabaseSettingHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "datasetting.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String TABLE_NAME = "tablemonitor";
+    private static final String TABLE_NAME = "tablesetting";
     private static final String COL_1 = "ID";
     private static final String COL_2 = "FLAG_SENSOR";
     private static final String COL_3 = "CONST_VR";
     private static final String COL_4 = "CONST_VS";
     private static final String COL_5 = "CONST_VT";
+    private static final String COL_6 = "FLAG_WL";
 
     public DatabaseSettingHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,17 +33,19 @@ public class DatabaseSettingHelper extends SQLiteOpenHelper {
                 "FLAG_SENSOR TEXT," +
                 "CONST_VR INTEGER," +
                 "CONST_VS INTEGER," +
-                "CONST_VT INTEGER)");
+                "CONST_VT INTEGER," +
+                "FLAG_WL)");
     }
 
     public boolean insertData(String flagSensor,int constVr,int constVs,
-                              int constVt) {
+                              int constVt, String flagWakelock) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_2,flagSensor);
         contentValues.put(COL_3,constVr);
         contentValues.put(COL_4,constVs);
         contentValues.put(COL_5,constVt);
+        contentValues.put(COL_6,flagWakelock);
         long result = db.insert(TABLE_NAME,null ,contentValues);
         if(result == -1)
             return false;
@@ -56,8 +59,8 @@ public class DatabaseSettingHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public boolean updateData(String id,String flagSensor,int constVr,int constVs,
-                              int constVt) {
+    public boolean updateData(String id, String flagSensor, int constVr, int constVs,
+                              int constVt, String flagWakelock) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_1,id);
@@ -65,6 +68,7 @@ public class DatabaseSettingHelper extends SQLiteOpenHelper {
         contentValues.put(COL_3,constVr);
         contentValues.put(COL_4,constVs);
         contentValues.put(COL_5,constVt);
+        contentValues.put(COL_6,flagWakelock);
         db.update(TABLE_NAME, contentValues, "ID = ?",new String[] { id });
         return true;
     }

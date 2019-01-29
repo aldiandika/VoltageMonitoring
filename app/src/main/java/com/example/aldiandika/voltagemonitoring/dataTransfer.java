@@ -13,10 +13,12 @@ import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewDebug;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -96,6 +98,7 @@ public class dataTransfer extends AppCompatActivity{
 
     public static boolean FLAG_DATA_COMPLETE = false;
     public static boolean FLAG_ARUS_1 = true;
+    public static boolean FLAG_WAKELOCK = false;
 //    static boolean FLAG_CRASH = false;
 
     private MyTimerTask.StoreData myasyncTask;
@@ -115,9 +118,11 @@ public class dataTransfer extends AppCompatActivity{
     DatabaseSettingHelper dbSetting;
 
     private int param_vr, param_vs, param_vt;
-    private String sensorArus;
+    private String sensorArus, fwakeLock;
 
     private String stringDebug;
+
+    PowerManager.WakeLock wl;
 
 
 //    int count;//for debug
@@ -279,12 +284,14 @@ public class dataTransfer extends AppCompatActivity{
             param_vr = 0;
             param_vs = 0;
             param_vt = 0;
+            FLAG_WAKELOCK = false;
         }else{
             while(cursor.moveToNext()){
                 sensorArus = cursor.getString(1);
                 param_vr = cursor.getInt(2);
                 param_vs = cursor.getInt(3);
                 param_vt = cursor.getInt(4);
+                fwakeLock = cursor.getString(5);
             }
 
             if(sensorArus.equalsIgnoreCase("1")){
@@ -292,17 +299,39 @@ public class dataTransfer extends AppCompatActivity{
             }else{
                 FLAG_ARUS_1 = false;
             }
+
+            if(fwakeLock.equalsIgnoreCase("1")){
+                FLAG_WAKELOCK = true;
+            }else{
+                FLAG_WAKELOCK = false;
+            }
         }
 
         stringDebug = String.valueOf(FLAG_ARUS_1) + " , " +
                 String.valueOf(param_vr) + " , " +
                 String.valueOf(param_vs) + " , " +
-                String.valueOf(param_vt);
+                String.valueOf(param_vt) + " , " +
+                String.valueOf(FLAG_WAKELOCK);
 
 //        Toast.makeText(this,stringDebug,Toast.LENGTH_SHORT).show();
 //    ======================================================================================
 
+        //wakelock
+        if(FLAG_WAKELOCK){
+            if(wl != null){
+                wl.release();
+            }
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wakelock");
+            wl.acquire();
+        }else{
+            if(wl != null){
+                wl.release();
+            }
+            wl = null;
+        }
 
+//    ======================================================================================
 
         MyTimerTask myTask = new MyTimerTask();
         Timer myTimer = new Timer();
@@ -384,7 +413,6 @@ public class dataTransfer extends AppCompatActivity{
     }
 
 
-
     private void parsingSerial(String input){
         splitedInput = input.split(" ");
         pjgData = splitedInput.length;
@@ -442,6 +470,7 @@ public class dataTransfer extends AppCompatActivity{
                     value_P = String.format("%.2f",f_daya);
                     txt_v4.setText(value_I); //I2
                     txt_daya.setText(value_P);
+                    value_VEmpat = value_I;
                 }
             }
 
@@ -499,12 +528,14 @@ public class dataTransfer extends AppCompatActivity{
             param_vr = 0;
             param_vs = 0;
             param_vt = 0;
+            FLAG_WAKELOCK = false;
         }else{
             while(cursor.moveToNext()){
                 sensorArus = cursor.getString(1);
                 param_vr = cursor.getInt(2);
                 param_vs = cursor.getInt(3);
                 param_vt = cursor.getInt(4);
+                fwakeLock = cursor.getString(5);
             }
 
             if(sensorArus.equalsIgnoreCase("1")){
@@ -512,14 +543,43 @@ public class dataTransfer extends AppCompatActivity{
             }else{
                 FLAG_ARUS_1 = false;
             }
+
+            if(fwakeLock.equalsIgnoreCase("1")){
+                FLAG_WAKELOCK = true;
+            }else{
+                FLAG_WAKELOCK = false;
+            }
         }
 
         stringDebug = String.valueOf(FLAG_ARUS_1) + " , " +
                 String.valueOf(param_vr) + " , " +
                 String.valueOf(param_vs) + " , " +
-                String.valueOf(param_vt);
+                String.valueOf(param_vt) + " , " +
+                String.valueOf(FLAG_WAKELOCK);
 
+        //wakelock
+        if(FLAG_WAKELOCK){
+            if(wl != null){
+                wl.release();
+            }
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wakelock");
+            wl.acquire();
+        }else{
+            if(wl != null){
+                wl.release();
+            }
+            wl = null;
+        }
 //        Toast.makeText(this,stringDebug,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(this,dataTransfer.class);
+        startActivity(intent);
+        finish();
     }
 
     private void hideSystemUI() {
