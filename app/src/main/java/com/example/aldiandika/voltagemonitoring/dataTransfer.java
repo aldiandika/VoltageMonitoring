@@ -124,6 +124,8 @@ public class dataTransfer extends AppCompatActivity{
 
     PowerManager.WakeLock wl;
 
+    int FLAG_INTERNET;
+
 
 //    int count;//for debug
 //    int countCrash;
@@ -665,18 +667,22 @@ public class dataTransfer extends AppCompatActivity{
                 super.onPostExecute(s);
                 if(s.equalsIgnoreCase("gagal database")){
                     status_kirimDB = 0;
+                    FLAG_INTERNET = 0;
 
                     img_konSukses.setVisibility(View.GONE);
                     img_konGagal.setVisibility(View.VISIBLE);
 
                 }else if(s.equalsIgnoreCase("gagal koneksi")){
                     status_kirimDB = 1;
+                    FLAG_INTERNET = 0;
 
                     img_konSukses.setVisibility(View.GONE);
                     img_konGagal.setVisibility(View.VISIBLE);
 
                 }else if(s.equalsIgnoreCase("sukses")){
                     status_kirimDB = 2;
+                    FLAG_INTERNET = 1;
+
                     FLAG_DATA_COMPLETE = false;
                     success = 0;
 
@@ -775,13 +781,14 @@ public class dataTransfer extends AppCompatActivity{
                 sqliteAsyncTask = new StoreSQlite();
                 sqliteAsyncTask.execute();
 
-                TAG_SERIAL = "$1#";
+
+                TAG_SERIAL = "$"+FLAG_INTERNET+"#";
                 serialPort.write(TAG_SERIAL.getBytes());
 
             }else{
                 try{
-                    TAG_SERIAL = "$1#";
-                    serialPort.write(TAG_SERIAL.getBytes());
+//                    TAG_SERIAL = "$0#";
+//                    serialPort.write(TAG_SERIAL.getBytes());
                 }catch (NullPointerException e){
                     e.printStackTrace();
                 }
