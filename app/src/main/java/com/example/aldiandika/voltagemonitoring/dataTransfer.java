@@ -1,5 +1,6 @@
 package com.example.aldiandika.voltagemonitoring;
 
+import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,6 +20,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewDebug;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -125,6 +128,8 @@ public class dataTransfer extends AppCompatActivity{
     PowerManager.WakeLock wl;
 
     int FLAG_INTERNET;
+
+
 
 
 //    int count;//for debug
@@ -587,6 +592,7 @@ public class dataTransfer extends AppCompatActivity{
                 int deviceVID = device.getVendorId();
                 if (deviceVID == 0x1A86)// 0x2341 Arduino Vendor ID
                 {
+                    unlockScreen();
                     PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
                     usbManager.requestPermission(device, pi);
                     keep = false;
@@ -654,6 +660,18 @@ public class dataTransfer extends AppCompatActivity{
 //        Toast.makeText(this,stringDebug,Toast.LENGTH_SHORT).show();
     }
 
+    private void unlockScreen(){
+        KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        final KeyguardManager.KeyguardLock kl = km .newKeyguardLock("MyKeyguardLock");
+        kl.disableKeyguard();
+
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
+                | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
+        wakeLock.acquire();
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
