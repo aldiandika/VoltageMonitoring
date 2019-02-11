@@ -47,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
 //        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
 //        wl.acquire();
 
-        Intent intent = new Intent(MainActivity.this,dataTransfer.class);
-        startActivity(intent);
-        finish();
+//        Intent intent = new Intent(MainActivity.this,dataTransfer.class);
+//        startActivity(intent);
+//        finish();
 
 
         /*

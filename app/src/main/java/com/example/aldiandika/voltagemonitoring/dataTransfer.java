@@ -181,10 +181,49 @@ public class dataTransfer extends AppCompatActivity{
             }else if(intent.getAction().equals(UsbManager.ACTION_USB_ACCESSORY_DETACHED)){
 //                onClickStop(btn_stop);
             }
-
-
         }
     };
+
+
+    //Serial conf ver 2
+    /*
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(ACTION_USB_PERMISSION)){
+//                boolean granted = intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
+                boolean granted = true;
+                if(granted){
+                    usbConnection = usbManager.openDevice(device);
+                    serialPort = UsbSerialDevice.createUsbSerialDevice(device, usbConnection);
+                    if(serialPort != null){
+                        if(serialPort.open()){
+                            Toast.makeText(dataTransfer.this, "Serial open", Toast.LENGTH_SHORT).show();
+//                            setUiEnabled(true);
+                            serialPort.setBaudRate(38400);
+                            serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
+                            serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
+                            serialPort.setParity(UsbSerialInterface.PARITY_NONE);
+                            serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
+                            serialPort.read(callback);
+                        }else {
+                            Log.d("serial","PORT NOT OPEN");
+                        }
+                    }else{
+                        Log.d("serial","Port is NULL");
+                    }
+                }else{
+
+                    Log.d("serial","NOT GRANTED!!!");
+                }
+            }else if(intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)){
+//                onClickStart(btn_start);
+            }else if(intent.getAction().equals(UsbManager.ACTION_USB_ACCESSORY_DETACHED)){
+//                onClickStop(btn_stop);
+            }
+        }
+    };
+    */
 
     //Battery information
     private BroadcastReceiver mBroadccastReceiver = new BroadcastReceiver() {
@@ -255,7 +294,8 @@ public class dataTransfer extends AppCompatActivity{
 
 //        Toast.makeText(dataTransfer.this, formattedDate, Toast.LENGTH_SHORT).show();
 
-        //For debug
+        //For debug ver 1.1
+
         HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
         if (!usbDevices.isEmpty()) {
             boolean keep = true;
@@ -276,6 +316,23 @@ public class dataTransfer extends AppCompatActivity{
                     break;
             }
         }
+
+
+        //For debug ver 1.2
+        /*
+        HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
+        if (!usbDevices.isEmpty()) {
+            for (Map.Entry<String, UsbDevice> entry : usbDevices.entrySet()) {
+                device = entry.getValue();
+
+//                PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//                usbManager.requestPermission(device, pi);
+                usbManager.openDevice(device);
+
+            }
+        }
+        */
+
 
         //getdata parama from sqlite
         dbSetting = new DatabaseSettingHelper(this);
@@ -521,6 +578,27 @@ public class dataTransfer extends AppCompatActivity{
 
         IntentFilter mFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(mBroadccastReceiver,mFilter);
+
+        HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
+        if (!usbDevices.isEmpty()) {
+            boolean keep = true;
+            for (Map.Entry<String, UsbDevice> entry : usbDevices.entrySet()) {
+                device = entry.getValue();
+                int deviceVID = device.getVendorId();
+                if (deviceVID == 0x1A86)// 0x2341 Arduino Vendor ID
+                {
+                    PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+                    usbManager.requestPermission(device, pi);
+                    keep = false;
+                } else {
+                    usbConnection= null;
+                    device = null;
+                }
+
+                if (!keep)
+                    break;
+            }
+        }
 
         dbSetting = new DatabaseSettingHelper(this);
         Cursor cursor = dbSetting.getAllData();
