@@ -856,17 +856,7 @@ public class dataTransfer extends AppCompatActivity{
         @Override
         public void run() {
 
-//            buff_cekCrash = cekCrash;
-//            if(buff_cekCrash == last_cekCrash){
-//                countCrash++;
-//                if(countCrash >= 2){
-//                    countCrash = 0;
-//                    cekCrash = 0;
-//
-//                    Intent intent = new Intent(dataTransfer.this,dataTransfer.class);
-//                    startActivity(intent);
-//                }
-//            }
+
 
             //for bug
             if(FLAG_DATA_COMPLETE){
@@ -895,6 +885,18 @@ public class dataTransfer extends AppCompatActivity{
     }
 
 }
+
+//            buff_cekCrash = cekCrash;
+//            if(buff_cekCrash == last_cekCrash){
+//                countCrash++;
+//                if(countCrash >= 2){
+//                    countCrash = 0;
+//                    cekCrash = 0;
+//
+//                    Intent intent = new Intent(dataTransfer.this,dataTransfer.class);
+//                    startActivity(intent);
+//                }
+//            }
 
  /*
     private void cekCrashThread(){
