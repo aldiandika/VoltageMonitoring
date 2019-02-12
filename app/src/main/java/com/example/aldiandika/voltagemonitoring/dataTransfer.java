@@ -51,13 +51,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class dataTransfer extends AppCompatActivity{
+public class dataTransfer extends AppCompatActivity {
 
     Button btn_start, btn_stop, btn_clear, btn_database;
     ImageButton ibtn_setting;
     ImageView img_konSukses, img_konGagal;
     TextView txt_receiveSerial, txt_receiveServer, txt_v1, txt_v2, txt_v3, txt_v4,
-             txt_I, txt_daya, txt_lenData, txt_battery;
+            txt_I, txt_daya, txt_lenData, txt_battery;
 
     //Serial variabel initialization
     public final String ACTION_USB_PERMISSION = "com.example.aldiandika.voltagemonitoring.USB_PERMISSION";
@@ -78,7 +78,7 @@ public class dataTransfer extends AppCompatActivity{
     public String TAG_SERIAL = "";
     int moveSerial;
 
-//    JSONParser jsonParser = new JSONParser();
+    //    JSONParser jsonParser = new JSONParser();
 //    JSONObject json;
     String url_create = Server.serverURL + "store";
 
@@ -109,14 +109,14 @@ public class dataTransfer extends AppCompatActivity{
 
     int pjgData, deviceStatus;
 
-//    String currentBatteryStatus="";
+    //    String currentBatteryStatus="";
     float percentage;
     String[] splitedInput;
 
     //SQlite variables
     Date tgl;
     String formattedDate;
-//    boolean inserted;
+    //    boolean inserted;
     DatabaseHelper dbSqlite;
     DatabaseSettingHelper dbSetting;
 
@@ -128,8 +128,6 @@ public class dataTransfer extends AppCompatActivity{
     PowerManager.WakeLock wl;
 
     int FLAG_INTERNET;
-
-
 
 
 //    int count;//for debug
@@ -144,11 +142,11 @@ public class dataTransfer extends AppCompatActivity{
             try {
                 data = new String(bytes, "UTF-8");
 //                data.concat("\n"); // for debugging purpose only
-                appendText2(txt_receiveSerial,data);
+                appendText2(txt_receiveSerial, data);
 
-            }catch (UnsupportedEncodingException e){
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-                Toast.makeText(dataTransfer.this,"error serial",Toast.LENGTH_SHORT).show();
+                Toast.makeText(dataTransfer.this, "error serial", Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -157,13 +155,13 @@ public class dataTransfer extends AppCompatActivity{
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(ACTION_USB_PERMISSION)){
+            if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
                 boolean granted = intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
-                if(granted){
+                if (granted) {
                     usbConnection = usbManager.openDevice(device);
                     serialPort = UsbSerialDevice.createUsbSerialDevice(device, usbConnection);
-                    if(serialPort != null){
-                        if(serialPort.open()){
+                    if (serialPort != null) {
+                        if (serialPort.open()) {
                             Toast.makeText(dataTransfer.this, "Serial open", Toast.LENGTH_SHORT).show();
 //                            setUiEnabled(true);
                             serialPort.setBaudRate(38400);
@@ -172,18 +170,18 @@ public class dataTransfer extends AppCompatActivity{
                             serialPort.setParity(UsbSerialInterface.PARITY_NONE);
                             serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
                             serialPort.read(callback);
-                        }else {
-                            Log.d("serial","PORT NOT OPEN");
+                        } else {
+                            Log.d("serial", "PORT NOT OPEN");
                         }
-                    }else{
-                        Log.d("serial","Port is NULL");
+                    } else {
+                        Log.d("serial", "Port is NULL");
                     }
-                }else{
-                    Log.d("serial","NOT GRANTED!!!");
+                } else {
+                    Log.d("serial", "NOT GRANTED!!!");
                 }
-            }else if(intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)){
+            } else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
 //                onClickStart(btn_start);
-            }else if(intent.getAction().equals(UsbManager.ACTION_USB_ACCESSORY_DETACHED)){
+            } else if (intent.getAction().equals(UsbManager.ACTION_USB_ACCESSORY_DETACHED)) {
 //                onClickStop(btn_stop);
             }
         }
@@ -235,12 +233,12 @@ public class dataTransfer extends AppCompatActivity{
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            deviceStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS,-1);
+            deviceStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-            int batteryLevel=(int)(((float)level / (float)scale) * 100.0f);
+            int batteryLevel = (int) (((float) level / (float) scale) * 100.0f);
 
-            txt_battery.setText("" +batteryLevel+ " %");
+            txt_battery.setText("" + batteryLevel + " %");
         }
     };
 
@@ -250,18 +248,18 @@ public class dataTransfer extends AppCompatActivity{
         setContentView(R.layout.activity_data_transfer);
 
         //Initiallization
-        btn_start = (Button)findViewById(R.id.btn_start);
-        btn_stop = (Button)findViewById(R.id.btn_stop);
-        ibtn_setting = (ImageButton)findViewById(R.id.ibtn_setting);
+        btn_start = (Button) findViewById(R.id.btn_start);
+        btn_stop = (Button) findViewById(R.id.btn_stop);
+        ibtn_setting = (ImageButton) findViewById(R.id.ibtn_setting);
 
-        Typeface typeface = Typeface.createFromAsset(getAssets(),"fonts/segoeui.ttf");
-        txt_receiveSerial = (TextView)findViewById(R.id.txt_receiveSerial);
-        txt_v1 = (TextView)findViewById(R.id.txt_v1);
-        txt_v2 = (TextView)findViewById(R.id.txt_v2);
-        txt_v3 = (TextView)findViewById(R.id.txt_v3);
-        txt_v4 = (TextView)findViewById(R.id.txt_v4);
-        txt_daya = (TextView)findViewById(R.id.txt_daya);
-        txt_battery = (TextView)findViewById(R.id.txt_battery);
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
+        txt_receiveSerial = (TextView) findViewById(R.id.txt_receiveSerial);
+        txt_v1 = (TextView) findViewById(R.id.txt_v1);
+        txt_v2 = (TextView) findViewById(R.id.txt_v2);
+        txt_v3 = (TextView) findViewById(R.id.txt_v3);
+        txt_v4 = (TextView) findViewById(R.id.txt_v4);
+        txt_daya = (TextView) findViewById(R.id.txt_daya);
+        txt_battery = (TextView) findViewById(R.id.txt_battery);
 
         txt_v1.setTypeface(typeface);
         txt_v2.setTypeface(typeface);
@@ -269,8 +267,8 @@ public class dataTransfer extends AppCompatActivity{
         txt_v4.setTypeface(typeface);
         txt_daya.setTypeface(typeface);
 
-        img_konGagal = (ImageView)findViewById(R.id.img_konGagal);
-        img_konSukses = (ImageView)findViewById(R.id.img_konSukses);
+        img_konGagal = (ImageView) findViewById(R.id.img_konGagal);
+        img_konSukses = (ImageView) findViewById(R.id.img_konSukses);
         img_konSukses.setVisibility(View.GONE);
         img_konGagal.setVisibility(View.GONE);
         //============================================================================
@@ -290,7 +288,7 @@ public class dataTransfer extends AppCompatActivity{
         registerReceiver(broadcastReceiver, filter);
 
         IntentFilter mFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        registerReceiver(mBroadccastReceiver,mFilter);
+        registerReceiver(mBroadccastReceiver, mFilter);
 
         tgl = Calendar.getInstance().getTime();
 
@@ -313,7 +311,7 @@ public class dataTransfer extends AppCompatActivity{
                     usbManager.requestPermission(device, pi);
                     keep = false;
                 } else {
-                    usbConnection= null;
+                    usbConnection = null;
                     device = null;
                 }
 
@@ -343,14 +341,14 @@ public class dataTransfer extends AppCompatActivity{
         dbSetting = new DatabaseSettingHelper(this);
         Cursor cursor = dbSetting.getAllData();
 
-        if(cursor.getCount() == 0){
+        if (cursor.getCount() == 0) {
             FLAG_ARUS_1 = true;
             param_vr = 0;
             param_vs = 0;
             param_vt = 0;
             FLAG_WAKELOCK = false;
-        }else{
-            while(cursor.moveToNext()){
+        } else {
+            while (cursor.moveToNext()) {
                 sensorArus = cursor.getString(1);
                 param_vr = cursor.getInt(2);
                 param_vs = cursor.getInt(3);
@@ -358,15 +356,15 @@ public class dataTransfer extends AppCompatActivity{
                 fwakeLock = cursor.getString(5);
             }
 
-            if(sensorArus.equalsIgnoreCase("1")){
+            if (sensorArus.equalsIgnoreCase("1")) {
                 FLAG_ARUS_1 = true;
-            }else{
+            } else {
                 FLAG_ARUS_1 = false;
             }
 
-            if(fwakeLock.equalsIgnoreCase("1")){
+            if (fwakeLock.equalsIgnoreCase("1")) {
                 FLAG_WAKELOCK = true;
-            }else{
+            } else {
                 FLAG_WAKELOCK = false;
             }
         }
@@ -381,15 +379,15 @@ public class dataTransfer extends AppCompatActivity{
 //    ======================================================================================
 
         //wakelock
-        if(FLAG_WAKELOCK){
-            if(wl != null){
+        if (FLAG_WAKELOCK) {
+            if (wl != null) {
                 wl.release();
             }
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wakelock");
             wl.acquire();
-        }else{
-            if(wl != null){
+        } else {
+            if (wl != null) {
                 wl.release();
             }
             wl = null;
@@ -400,7 +398,7 @@ public class dataTransfer extends AppCompatActivity{
         MyTimerTask myTask = new MyTimerTask();
         Timer myTimer = new Timer();
 
-        myTimer.schedule(myTask,1000, 5000);
+        myTimer.schedule(myTask, 1000, 5000);
 
 
         //        cekCrashThread();
@@ -418,58 +416,57 @@ public class dataTransfer extends AppCompatActivity{
         btn_stop.setEnabled(bool);
     }
 
-    public void onClickStart(View view){
+    public void onClickStart(View view) {
         TAG_SERIAL = "$10#";
         serialPort.write(TAG_SERIAL.getBytes());
     }
 
-    public void onClickStop(View view){
+    public void onClickStop(View view) {
         serialPort.close();
         setUiEnabled(false);
-        appendText(txt_receiveSerial,"\nSerial Connection Closed! \n");
+        appendText(txt_receiveSerial, "\nSerial Connection Closed! \n");
     }
 
-    public void onClickClear(View view){
+    public void onClickClear(View view) {
         try {
             txt_receiveSerial.setText("");
-        }catch(NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
     }
 
-    private void appendText(TextView txtView, CharSequence text){
+    private void appendText(TextView txtView, CharSequence text) {
         final TextView ftxtView = txtView;
         final CharSequence ftext = text;
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                try{
+                try {
                     ftxtView.append(ftext);
-                }catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
         });
     }
 
-    private void appendText2(TextView txtView, String text){ //for debug
+    private void appendText2(TextView txtView, String text) { //for debug
         final TextView ftxtView = txtView;
         final String ftext = text;
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                try{
+                try {
                     parsingSerial(ftext);
                     ftxtView.setText(ftext);
 
 //                    Toast.makeText(dataTransfer.this,"cek= "+cekCrash+" last_cek= "+last_cekCrash,Toast.LENGTH_SHORT).show();
 //                    txt_daya.setText(String.valueOf(moveSerial));
 
-                }
-                catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
@@ -477,69 +474,69 @@ public class dataTransfer extends AppCompatActivity{
     }
 
 
-    private void parsingSerial(String input){
+    private void parsingSerial(String input) {
         splitedInput = input.split(" ");
         pjgData = splitedInput.length;
 
 
 //        txt_lenData.setText(String.valueOf(pjgData));
-        if(pjgData == 6){
-            if((splitedInput[0].replaceAll("[0-9]+","")).equalsIgnoreCase("a")){
-                value_VSatu = splitedInput[0].replaceAll("[a-z]+","");
+        if (pjgData == 6) {
+            if ((splitedInput[0].replaceAll("[0-9]+", "")).equalsIgnoreCase("a")) {
+                value_VSatu = splitedInput[0].replaceAll("[a-z]+", "");
                 //convert to real data
-                f_Vr = (((float)Integer.parseInt(value_VSatu))/100) + param_vr;
-                value_VSatu = String.format("%.2f",f_Vr);
+                f_Vr = (((float) Integer.parseInt(value_VSatu)) / 100) + param_vr;
+                value_VSatu = String.format("%.2f", f_Vr);
                 txt_v1.setText(value_VSatu); //Vr
             }
 
-            if((splitedInput[1].replaceAll("[0-9]+","")).equalsIgnoreCase("b")){
-                value_VDua = splitedInput[1].replaceAll("[a-z]+","");
+            if ((splitedInput[1].replaceAll("[0-9]+", "")).equalsIgnoreCase("b")) {
+                value_VDua = splitedInput[1].replaceAll("[a-z]+", "");
                 //convert to real data
-                f_Vs = (((float)Integer.parseInt(value_VDua))/100) + param_vs;
-                value_VDua = String.format("%.2f",f_Vs);
+                f_Vs = (((float) Integer.parseInt(value_VDua)) / 100) + param_vs;
+                value_VDua = String.format("%.2f", f_Vs);
                 txt_v2.setText(value_VDua); //Vs
             }
 
-            if((splitedInput[2].replaceAll("[0-9]+","")).equalsIgnoreCase("c")){
-                value_VTiga = splitedInput[2].replaceAll("[a-z]+","");
+            if ((splitedInput[2].replaceAll("[0-9]+", "")).equalsIgnoreCase("c")) {
+                value_VTiga = splitedInput[2].replaceAll("[a-z]+", "");
                 //convert to real data
-                f_Vt = (((float)Integer.parseInt(value_VTiga))/100) + param_vt;
-                value_VTiga = String.format("%.2f",f_Vt);
+                f_Vt = (((float) Integer.parseInt(value_VTiga)) / 100) + param_vt;
+                value_VTiga = String.format("%.2f", f_Vt);
                 txt_v3.setText(value_VTiga); //Vt
             }
 
-            if((splitedInput[3].replaceAll("[0-9]+","")).equalsIgnoreCase("d")){
-                value_VEmpat = splitedInput[3].replaceAll("[a-z]+","");
+            if ((splitedInput[3].replaceAll("[0-9]+", "")).equalsIgnoreCase("d")) {
+                value_VEmpat = splitedInput[3].replaceAll("[a-z]+", "");
                 //convert to real data
-                f_I1 = ((float)Integer.parseInt(value_VEmpat))/100;
-                value_VEmpat = String.format("%.2f",f_I1);
+                f_I1 = ((float) Integer.parseInt(value_VEmpat)) / 100;
+                value_VEmpat = String.format("%.2f", f_I1);
 
-                if(FLAG_ARUS_1){
-                    f_daya = f_I1*f_Vt;
-                    value_P = String.format("%.2f",f_daya);
+                if (FLAG_ARUS_1) {
+                    f_daya = f_I1 * f_Vt;
+                    value_P = String.format("%.2f", f_daya);
                     txt_v4.setText(value_VEmpat); //I
                     txt_daya.setText(value_P);
                 }
 
             }
 
-            if((splitedInput[4].replaceAll("[0-9]+","")).equalsIgnoreCase("e")){
-                value_I = splitedInput[4].replaceAll("[a-z]+",""); //I2
+            if ((splitedInput[4].replaceAll("[0-9]+", "")).equalsIgnoreCase("e")) {
+                value_I = splitedInput[4].replaceAll("[a-z]+", ""); //I2
                 //convert to real data
-                f_I2 = ((float)Integer.parseInt(value_I))/100;
-                value_I = String.format("%.2f",f_I2);
+                f_I2 = ((float) Integer.parseInt(value_I)) / 100;
+                value_I = String.format("%.2f", f_I2);
 
-                if(!FLAG_ARUS_1){
-                    f_daya = f_I2*f_Vt;
-                    value_P = String.format("%.2f",f_daya);
+                if (!FLAG_ARUS_1) {
+                    f_daya = f_I2 * f_Vt;
+                    value_P = String.format("%.2f", f_daya);
                     txt_v4.setText(value_I); //I2
                     txt_daya.setText(value_P);
                     value_VEmpat = value_I;
                 }
             }
 
-            if((splitedInput[5].replaceAll("[0-9]+","")).equalsIgnoreCase("f")){
-                status_SerialMikro = splitedInput[5].replaceAll("[a-z]+",""); //status
+            if ((splitedInput[5].replaceAll("[0-9]+", "")).equalsIgnoreCase("f")) {
+                status_SerialMikro = splitedInput[5].replaceAll("[a-z]+", ""); //status
             }
 
 //=====================================================================
@@ -553,14 +550,14 @@ public class dataTransfer extends AppCompatActivity{
             FLAG_DATA_COMPLETE = true;
             pjgData = 0;
             splitedInput = null;
-        }else{
+        } else {
             FLAG_DATA_COMPLETE = false;
         }
 
     }
 
-    public void toSetting(View view){
-        Intent intent = new Intent(this,Settings.class);
+    public void toSetting(View view) {
+        Intent intent = new Intent(this, Settings.class);
         startActivity(intent);
     }
 
@@ -582,7 +579,7 @@ public class dataTransfer extends AppCompatActivity{
         registerReceiver(broadcastReceiver, filter);
 
         IntentFilter mFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        registerReceiver(mBroadccastReceiver,mFilter);
+        registerReceiver(mBroadccastReceiver, mFilter);
 
         HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
         if (!usbDevices.isEmpty()) {
@@ -597,7 +594,7 @@ public class dataTransfer extends AppCompatActivity{
                     usbManager.requestPermission(device, pi);
                     keep = false;
                 } else {
-                    usbConnection= null;
+                    usbConnection = null;
                     device = null;
                 }
 
@@ -609,14 +606,14 @@ public class dataTransfer extends AppCompatActivity{
         dbSetting = new DatabaseSettingHelper(this);
         Cursor cursor = dbSetting.getAllData();
 
-        if(cursor.getCount() == 0){
+        if (cursor.getCount() == 0) {
             FLAG_ARUS_1 = true;
             param_vr = 0;
             param_vs = 0;
             param_vt = 0;
             FLAG_WAKELOCK = false;
-        }else{
-            while(cursor.moveToNext()){
+        } else {
+            while (cursor.moveToNext()) {
                 sensorArus = cursor.getString(1);
                 param_vr = cursor.getInt(2);
                 param_vs = cursor.getInt(3);
@@ -624,15 +621,15 @@ public class dataTransfer extends AppCompatActivity{
                 fwakeLock = cursor.getString(5);
             }
 
-            if(sensorArus.equalsIgnoreCase("1")){
+            if (sensorArus.equalsIgnoreCase("1")) {
                 FLAG_ARUS_1 = true;
-            }else{
+            } else {
                 FLAG_ARUS_1 = false;
             }
 
-            if(fwakeLock.equalsIgnoreCase("1")){
+            if (fwakeLock.equalsIgnoreCase("1")) {
                 FLAG_WAKELOCK = true;
-            }else{
+            } else {
                 FLAG_WAKELOCK = false;
             }
         }
@@ -644,15 +641,15 @@ public class dataTransfer extends AppCompatActivity{
                 String.valueOf(FLAG_WAKELOCK);
 
         //wakelock
-        if(FLAG_WAKELOCK){
-            if(wl != null){
+        if (FLAG_WAKELOCK) {
+            if (wl != null) {
                 wl.release();
             }
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wakelock");
             wl.acquire();
-        }else{
-            if(wl != null){
+        } else {
+            if (wl != null) {
                 wl.release();
             }
             wl = null;
@@ -660,9 +657,9 @@ public class dataTransfer extends AppCompatActivity{
 //        Toast.makeText(this,stringDebug,Toast.LENGTH_SHORT).show();
     }
 
-    private void unlockScreen(){
+    private void unlockScreen() {
         KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        final KeyguardManager.KeyguardLock kl = km .newKeyguardLock("MyKeyguardLock");
+        final KeyguardManager.KeyguardLock kl = km.newKeyguardLock("MyKeyguardLock");
         kl.disableKeyguard();
 
 
@@ -672,10 +669,11 @@ public class dataTransfer extends AppCompatActivity{
                 | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
         wakeLock.acquire();
     }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(this,dataTransfer.class);
+        Intent intent = new Intent(this, dataTransfer.class);
         startActivity(intent);
         finish();
     }
@@ -705,9 +703,9 @@ public class dataTransfer extends AppCompatActivity{
         }
     }
 
-    class MyTimerTask extends TimerTask{
+    class MyTimerTask extends TimerTask {
 
-        final class StoreData extends AsyncTask<String, String, String>{
+        final class StoreData extends AsyncTask<String, String, String> {
             @Override
             protected String doInBackground(String... strings) {
                 JSONParser jsonParser = new JSONParser();
@@ -721,34 +719,33 @@ public class dataTransfer extends AppCompatActivity{
 //                value_VEmpat = "4";
 //                value_I = "5";
 //                value_P = "6";
-                if(!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
-                        && !value_VEmpat.isEmpty() && !value_I.isEmpty() && !value_P.isEmpty()){
+                if (!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
+                        && !value_VEmpat.isEmpty() && !value_I.isEmpty() && !value_P.isEmpty()) {
 
-                    params.add(new BasicNameValuePair(TAG_V_SATU,value_VSatu));
-                    params.add(new BasicNameValuePair(TAG_V_DUA,value_VDua));
-                    params.add(new BasicNameValuePair(TAG_V_TIGA,value_VTiga));
-                    params.add(new BasicNameValuePair(TAG_V_EMPAT,value_VEmpat));
-                    params.add(new BasicNameValuePair(TAG_I,value_I));
-                    params.add(new BasicNameValuePair(TAG_P,value_P));
+                    params.add(new BasicNameValuePair(TAG_V_SATU, value_VSatu));
+                    params.add(new BasicNameValuePair(TAG_V_DUA, value_VDua));
+                    params.add(new BasicNameValuePair(TAG_V_TIGA, value_VTiga));
+                    params.add(new BasicNameValuePair(TAG_V_EMPAT, value_VEmpat));
+                    params.add(new BasicNameValuePair(TAG_I, value_I));
+                    params.add(new BasicNameValuePair(TAG_P, value_P));
 
                     json = jsonParser.makeHttpRequest(url_create, "GET", params);
 
-                    try{
+                    try {
                         success = 0;
                         success = json.getInt(TAG_SUCCESS);
 
-                        if(success == 1){
+                        if (success == 1) {
                             return "sukses";
-                        }else{
+                        } else {
                             return "gagal koneksi";
                         }
 
-                    }catch (JSONException e){
+                    } catch (JSONException e) {
                         e.printStackTrace();
                         cekJson = "0";
                         return "gagal koneksi";
-                    }
-                    catch (NullPointerException e){
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                         cekJson = "0";
                         return "gagal koneksi";
@@ -761,21 +758,21 @@ public class dataTransfer extends AppCompatActivity{
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
-                if(s.equalsIgnoreCase("gagal database")){
+                if (s.equalsIgnoreCase("gagal database")) {
                     status_kirimDB = 0;
                     FLAG_INTERNET = 0;
 
                     img_konSukses.setVisibility(View.GONE);
                     img_konGagal.setVisibility(View.VISIBLE);
 
-                }else if(s.equalsIgnoreCase("gagal koneksi")){
+                } else if (s.equalsIgnoreCase("gagal koneksi")) {
                     status_kirimDB = 1;
                     FLAG_INTERNET = 0;
 
                     img_konSukses.setVisibility(View.GONE);
                     img_konGagal.setVisibility(View.VISIBLE);
 
-                }else if(s.equalsIgnoreCase("sukses")){
+                } else if (s.equalsIgnoreCase("sukses")) {
                     status_kirimDB = 2;
                     FLAG_INTERNET = 1;
 
@@ -784,7 +781,7 @@ public class dataTransfer extends AppCompatActivity{
 
                     img_konSukses.setVisibility(View.VISIBLE);
                     img_konGagal.setVisibility(View.GONE);
-                }else{
+                } else {
                     img_konSukses.setVisibility(View.GONE);
                     img_konGagal.setVisibility(View.VISIBLE);
                 }
@@ -794,7 +791,7 @@ public class dataTransfer extends AppCompatActivity{
             }
         }
 
-        final class StoreSQlite extends AsyncTask<String, String, String>{
+        final class StoreSQlite extends AsyncTask<String, String, String> {
 
             Date dateLocal;
             String formattedDateLocal;
@@ -823,12 +820,12 @@ public class dataTransfer extends AppCompatActivity{
 //                value_I = "5";
 //                value_P = "6";
 
-                if(!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
+                if (!value_VSatu.isEmpty() && !value_VDua.isEmpty() && !value_VTiga.isEmpty()
                         && !value_VEmpat.isEmpty() && !value_I.isEmpty() && !value_P.isEmpty() &&
                         !formattedDateLocal.isEmpty()) {
 
-                     boolean inserted = dbSqlite.insertData(value_VSatu,value_VDua,value_VTiga,value_VEmpat,
-                            value_I,value_P,formattedDateLocal);
+                    boolean inserted = dbSqlite.insertData(value_VSatu, value_VDua, value_VTiga, value_VEmpat,
+                            value_I, value_P, formattedDateLocal);
 
                     //For debug
 //                    boolean inserted = dbSqlite.insertData("1",
@@ -838,9 +835,9 @@ public class dataTransfer extends AppCompatActivity{
 //                            "1","1",
 //                            "1");
 
-                    if(!inserted){
+                    if (!inserted) {
                         return "SQlite Gagal";
-                    }else{
+                    } else {
                         return "SQlite Sukses";
                     }
                 }
@@ -853,14 +850,14 @@ public class dataTransfer extends AppCompatActivity{
 //                Toast.makeText(dataTransfer.this,s,Toast.LENGTH_LONG).show();
             }
         }
+
         @Override
         public void run() {
 
-
-
+            // adding watcher
             //for bug
-            if(FLAG_DATA_COMPLETE){
-                myasyncTask =  new StoreData();
+            if (FLAG_DATA_COMPLETE) {
+                myasyncTask = new StoreData();
                 myasyncTask.execute();
 
 //                count++;
@@ -868,14 +865,14 @@ public class dataTransfer extends AppCompatActivity{
                 sqliteAsyncTask.execute();
 
 
-                TAG_SERIAL = "$"+FLAG_INTERNET+"#";
+                TAG_SERIAL = "$" + FLAG_INTERNET + "#";
                 serialPort.write(TAG_SERIAL.getBytes());
 
-            }else{
-                try{
+            } else {
+                try {
 //                    TAG_SERIAL = "$0#";
 //                    serialPort.write(TAG_SERIAL.getBytes());
-                }catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 
